@@ -445,6 +445,25 @@ $(function() {
 		clearTimeout( SEARCH_DELAY );
 		SEARCH_DELAY = setTimeout(()=>{
 			console.log(this.value);
+			let typeCur = $('.current','#todo-type-list');
+			let query = '';
+
+			if ( typeCur ) {
+
+				switch (typeCur.data().id) {
+					case 1:
+						query = `SELECT * FROM todoEvent WHERE title like '%${this.value}%' AND date(remindTime)=data('${calendar.format('YYYY-MM-DD')}')`;
+						break;
+
+					case 2:
+						query = `SELECT * FROM todoEvent WHERE title like '%${this.value}%'`;
+						break;
+
+					default:
+						query = `SELECT * FROM todoEvent WHERE title like '%${this.value}%' AND parent = ${typeCur.data().id}`;
+
+				}
+			}
 
 			if (!this.value.trim().length) {
 				$('ul','.todo-list-box').html( '' );
@@ -452,7 +471,7 @@ $(function() {
 			} 
 
 			webSQLCommon(
-				`SELECT * FROM todoEvent WHERE title like '%${this.value}%'`,
+				query,
 				[],
 				result => {
 					// 更新列表
