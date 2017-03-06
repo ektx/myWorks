@@ -27,7 +27,7 @@ $(function() {
 			}
 
 			webSQLCreateTable('todoType', 'id unique, name', done, fail);
-			webSQLCreateTable('calendarDays', 'time unique, sum', done, fail);
+			webSQLCreateTable('calendarDays', 'time unique, sum, dayType', done, fail);
 			webSQLCreateTable('todoEvent', 'id unique, title, complete, description, parent, remindTime', done, fail)
 
 			webSQLInsert('todoType', 'id, name', [1, '今天'])
@@ -67,6 +67,29 @@ $(function() {
 
 				goToToday();
 			} 
+		)
+
+
+		// 为日历追加类型
+		webSQLCommon(
+			`SELECT dayType FROM calendarDays`,
+			[],
+			result => {
+				console.warn(result)
+			},
+			error => {
+				console.error(error);
+				webSQLCommon(
+					`ALTER TABLE calendarDays ADD dayType`,
+					[],
+					addResult => {
+						console.log(addResult)
+					},
+					addErr => {
+						console.log(addErr)
+					}
+				)
+			}
 		)
 
 	})();
@@ -156,6 +179,7 @@ $(function() {
 	  	}
 	}, false);
 
+
 	// 删除指定的类
 	function delListDom (ele, table) {
 
@@ -203,20 +227,6 @@ $(function() {
 			console.error('del fail!')
 		}
 
-		// if ($('.current', '.calendar-days').length) {
-		// 	console.log('del')
-		// 	let YYMM = calendarTitleTime();
-		// 	let _brotherSize = _.siblings().length;
-
-
-		// 	// 如果已经没有其它的事件了
-		// 	// 那么这一天就没事了,要去掉日历上的提醒
-		// 	if (!_brotherSize) {
-				
-
-		// 	}
-		// }
-
 		if (ele === '.todo-list-box') {
 			console.log('del event')
 
@@ -226,11 +236,24 @@ $(function() {
 			// 对于有时间的事件
 			if (liData.time) {
 				webSQLCommon(
-					`SELECT remindTime FROM todoEvent WHERE date(remindTime)=date(?)`,
+					`SELECT remindTime, parent FROM todoEvent WHERE date(remindTime)=date(?)`,
 					[liData.time],
 					data => {
 						// 如果当前时间已经没有其它事件了,我们删除日历上的提醒
-						if (data.rows.length == 1) setCalendarDayEvent('del', liData.time)
+						if (data.rows.length == 1) {
+							setCalendarDayEvent({
+								type: 'del', 
+								time: liData.time,
+								parent: data.rows[0].parent
+							})
+						} else {
+							setCalendarDayEvent({
+								type: 'update', 
+								time: liData.time, 
+								parent: data.rows[0].parent,
+								updateType: '-'
+							})
+						}
 					},
 					err => {
 						console.error(err)
@@ -352,8 +375,6 @@ $(function() {
 		}
 
 		webSQLCommon(query,[], (data)=>{
-			console.log(data);
-
 			updateTitleTime(txt, id)
 
 			// 更新列表
@@ -685,7 +706,7 @@ function makeCalendar(year, month, date) {
 
 			// 标记当天
 			if (_d == date) {
-				_class += 'day ';
+				_class += 'day current ';
 			}
 
 			// 标记事件
@@ -902,8 +923,7 @@ function saveMyToDoList (_this) {
 		parent = '';
 	}
 
-	// 如果日历有选择日期 或 类型是今天的话,提醒有时间
-	if (calTime.ele.length > 0 || parseInt(typeId) === 1) reTime = calendar.format('YYYY-MM-DD',`${calTime.year}-${calTime.month}-${calTime.day}`);
+	reTime = calendar.format('YYYY-MM-DD',`${calTime.year}-${calTime.month}-${calTime.day}`);
 
 	// 没有写标题的不算~
 	if (!title) {
@@ -917,13 +937,22 @@ function saveMyToDoList (_this) {
 			'data-time': reTime
 		});
 
+		_this.data().id = id;
+		_this.data().time = reTime;
+		_this.data().parent = parent;
+
 		// 在有时间提醒时 处理日历上事件效果
 		if (reTime) {
 			let _type = 'update';
 			if (!calTime.hasEvent) {
 				_type = 'add';
 			}
-			setCalendarDayEvent(_type, reTime)
+			setCalendarDayEvent({
+				type: _type, 
+				time: reTime,
+				parent: parent,
+				updateType: '+'
+			})
 		}
 	}
 
@@ -977,7 +1006,11 @@ function calendarTitleTime () {
 	@type  add | update | del
 	@time  日历事件时间
 */
-function setCalendarDayEvent(type, time) {
+function setCalendarDayEvent(obj) {
+
+	let type = obj.type;
+	let time = obj.time;
+	let parent = obj.parent;
 
 	let done = data => {
 		console.log(data)
@@ -994,14 +1027,24 @@ function setCalendarDayEvent(type, time) {
 
 	switch (type) {
 		case 'update':
-			webSQLCommon(`UPDATE todoEvent SET complete=? WHERE id = ?c,
-				[this.checked ? 1:0, id]alendarDays SET sum = sum+1 WHERE time = ?`, [time], data => {
-				console.log(data)
-			}, fail)
+
+			webSQLCommon(
+				`UPDATE calendarDays SET sum = sum${obj.updateType}1 WHERE time = ?`,
+				[time], 
+				data => {
+					webSQLCommon(
+						`UPDATE todoEvent SET complete=? WHERE id = ?`, 
+						[this.checked ? 1:0, id],
+						done,
+						fail
+					)
+				}, 
+				fail
+			)
 			break;
 
 		case 'add':
-			webSQLInsert('calendarDays', 'time, sum', [time, 1], addRemind, fail);
+			webSQLInsert('calendarDays', 'time, sum, dayType', [time, 1, parent], addRemind, fail);
 			break;
 
 		case 'del':
