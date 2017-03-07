@@ -27,7 +27,7 @@ $(function() {
 			}
 
 			webSQLCreateTable('todoType', 'id unique, name', done, fail);
-			webSQLCreateTable('calendarDays', 'time unique, sum, dayType', done, fail);
+			webSQLCreateTable('calendarDays', 'time, sum, dayType', done, fail);
 			webSQLCreateTable('todoEvent', 'id unique, title, complete, description, parent, remindTime', done, fail)
 
 			webSQLInsert('todoType', 'id, name', [1, '今天'])
@@ -359,6 +359,11 @@ $(function() {
 		// 移除日历上的选择
 		$('li','.calendar-days').removeClass('current');
 
+		// 对添加功能
+		let addBtn = document.getElementById('add-todo-event');
+
+		if (addBtn.matches('.clear-search')) addBtn.classList.remove('clear-search');
+
 		let _ = $(this),
 			txt = _.find('input').val();
 			titleBox = $('.os-day-header'),
@@ -432,11 +437,19 @@ $(function() {
 	let SEARCH_DELAY;
 	$('.hd-day-inner').on('dblclick', function(e) {
 		let _titleEle = $(this).find('.title');
+		let typeCur = $('.current','#todo-type-list');
 
 		if (_titleEle.hasClass('day')) {
 			_titleEle.removeClass('day').addClass('r-day').next().hide();
 		}
-		_titleEle.val('').removeAttr('readonly').focus()
+		_titleEle.addClass('search').val('').removeAttr('readonly').focus();
+
+		// 设置搜索提醒
+		_titleEle.attr('placeholder', `搜索: ${typeCur.find('input')[0].value}`);
+
+		// 让添加事件变成清空功能
+		$('#add-todo-event').addClass('clear-search').attr('data-currenttype', typeCur.data().id );
+
 	}).on('blur', '.title', function() {
 		// $(this).attr('readonly', 'readonly')
 	})
@@ -671,18 +684,33 @@ $(function() {
 		let parent = '';
 		let isNew = $('[data-id="new"]');
 
-		if ( isNew.length ) {
-			isNew.find('.title').focus()
-			return;	
+		// 清除功能时
+		if ( this.matches('.clear-search') ) {
+			let searchVal = document.querySelector('.title', '.hd-day-inner');
+			if ( searchVal.value ) {
+				searchVal.value = '';
+			} else {
+				document.querySelector('[data-id="1"]').click();
+				this.classList.remove('clear-search')
+			}
+		} 
+		// 添加功能时
+		else {
+
+			if ( isNew.length ) {
+				isNew.find('.title').focus()
+				return;	
+			}
+
+			if (typeLi.length) {
+				parent = typeLi.data().id;
+			}
+
+			let html = todoListLiTem({parent: parent})
+
+			$('.todo-list-box > ul').append(html).find('.title:last').focus();
+			
 		}
-
-		if (typeLi.length) {
-			parent = typeLi.data().id;
-		}
-
-		let html = todoListLiTem({parent: parent})
-
-		$('.todo-list-box > ul').append(html).find('.title:last').focus();
 	});
 
 });
@@ -959,7 +987,7 @@ function saveMyToDoList (_this) {
 		_this.data().id = id;
 		_this.data().time = reTime;
 		_this.data().parent = parent;
-
+debugger;
 		// 在有时间提醒时 处理日历上事件效果
 		if (reTime) {
 			let _type = 'update';
