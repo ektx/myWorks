@@ -676,7 +676,7 @@ $(function() {
 			if ( searchVal.value ) {
 				searchVal.value = '';
 			} else {
-				document.querySelector('[data-id="1"]').click();
+				document.querySelector(`[data-id="${this.dataset.currenttype}"]`).click();
 				this.classList.remove('clear-search')
 			}
 		} 
