@@ -659,20 +659,6 @@ $(function() {
 		)
 
 	})
-	.on('scroll', function(e) {
-		let _ = $(this);
-		let titleH = _.prev().outerHeight(true);
-		
-		$(this).find('li').each(function(evt) {
-			let __ = $(this);
-
-			if (__.offset().top < titleH) {
-				__.addClass('hold')
-			} else {
-				__.removeClass('hold')
-			}
-		})
-	})
 
 	.on('mouseover', 'li', function() {
 		$(this).addClass('ready').siblings().removeClass('ready')
