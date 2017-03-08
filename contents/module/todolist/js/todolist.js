@@ -973,7 +973,7 @@ function saveMyToDoList (_this) {
 		_this.data().id = id;
 		_this.data().time = reTime;
 		_this.data().parent = parent;
-debugger;
+
 		// 在有时间提醒时 处理日历上事件效果
 		if (reTime) {
 			let _type = 'update';
