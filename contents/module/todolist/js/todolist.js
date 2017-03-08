@@ -43,6 +43,25 @@ $(function() {
 
 		}
 
+		// 初始化界面
+		let init_display = ()=> {
+
+			webSQLCommon(
+				`SELECT currentType FROM appInfo`,
+				[],
+				done => {
+					// 展现主菜单
+					generateTodoType ( done.rows[0].currentType );
+				},
+				fail => {
+					console.error(fail)
+				}
+			)
+
+			goToToday();
+			
+		}
+
 		// 判断数据库是否有数据在了,没有数据时则初始化应用程序
 		webSQLCommon(
 			'SELECT id FROM todoType WHERE id in (1)', [],
@@ -52,20 +71,14 @@ $(function() {
 					console.log('初始化完成!')
 				} 
 
-				// 展现主菜单
-				generateTodoType (1);
-
-				goToToday();
+				init_display();
 			},
 			err => {
 				console.error(err)
 				console.log('初始化进行...');
-				initApp()
+				initApp();
 
-				// 展现主菜单
-				generateTodoType (1);
-
-				goToToday();
+				init_display();
 			} 
 		)
 
@@ -91,6 +104,26 @@ $(function() {
 				)
 			}
 		)
+
+		// 添加状态
+		// 用于记录用户之前使用的类型
+		webSQLCommon(
+			'SELECT name FROM sqlite_master WHERE type="table" AND name="appInfo"', 
+			[],
+			data => {
+				if (!data.rows.length) {
+					webSQLCreateTable('appInfo','dbversion, currentType', done_app=> {
+						
+						webSQLInsert('appInfo', 'dbversion', [1])
+					});
+
+				}
+			}, 
+			error=> {
+				console.log(error)
+			}
+		)
+
 
 	})();
 
@@ -180,108 +213,6 @@ $(function() {
 	}, false);
 
 
-	// 删除指定的类
-	function delListDom (ele, table) {
-
-		let li = $('.ready', ele);
-
-		let done = function() {
-
-			getTableList('todoEvent', function(data){
-				console.log(data);
-
-				if (!data.length) {
-					console.warn('remove');
-
-					let removeTime = calendar.reTimeStamp(reTime);
-					let findTime   = parseInt(removeTime.getFullYear()+''+(removeTime.getMonth()+1));
-
-					let keyDone = function (data) {
-						console.log();
-
-						let _day  = removeTime.getDate();
-						let index = data.days.indexOf(_day);
-						data.days.splice(index, 1);
-
-						updataDB('calendarDayEvent', findTime, 'days', data.days, function() {
-							$('#calDay-'+_day).removeClass('events')
-						})
-
-
-					}
-					let keyFail = function(err) {
-						console.error(err)
-					}
-
-					getKeyInfo('calendarDayEvent', findTime, keyDone, keyFail)
-				}
-			}, {
-				filter: 'only',
-				key: 'remindTime',
-				value: reTime
-			})
-			_.remove();
-		}
-
-		let fail = function() {
-			console.error('del fail!')
-		}
-
-		if (ele === '.todo-list-box') {
-			console.log('del event')
-
-			// 
-			let liData = li.data();
-
-			// 对于有时间的事件
-			if (liData.time) {
-				webSQLCommon(
-					`SELECT remindTime, parent FROM todoEvent WHERE date(remindTime)=date(?)`,
-					[liData.time],
-					data => {
-						// 如果当前时间已经没有其它事件了,我们删除日历上的提醒
-						if (data.rows.length == 1) {
-							setCalendarDayEvent({
-								type: 'del', 
-								time: liData.time,
-								parent: data.rows[0].parent
-							})
-						} else {
-							setCalendarDayEvent({
-								type: 'update', 
-								time: liData.time, 
-								parent: data.rows[0].parent,
-								updateType: '-'
-							})
-						}
-					},
-					err => {
-						console.error(err)
-					}
-				)
-			}
-
-			// 删除当前数据
-			webSQLCommon(
-				`DELETE FROM todoEvent WHERE id=?`,
-				[liData.id],
-				data => {
-					console.log(data);
-					// 删除行
-					li.remove();
-				},
-				err => {
-					console.error(err)
-				}
-			)
-
-		} else {
-			console.log('del type')
-		}
-
-	}
-
-
 	// 点击日历时间,定位到这今天
 	$('.calendar-control span').click(goToToday);
 
@@ -357,7 +288,7 @@ $(function() {
 	$('#todo-type-list').on('click', 'li', function() {
 
 		// 移除日历上的选择
-		$('li','.calendar-days').removeClass('current');
+		// $('li','.calendar-days').removeClass('current');
 
 		// 对添加功能
 		let addBtn = document.getElementById('add-todo-event');
@@ -389,6 +320,12 @@ $(function() {
 		})
 		// 添加状态
 		$(this).addClass('current').siblings().removeClass();
+
+		// 更新 appInfo currentType
+		webSQLCommon(
+			`UPDATE appInfo SET currentType=?`,
+			[id]
+		)
 
 	}).on('mouseover', 'li', function() {
 		$(this).addClass('ready').siblings().removeClass('ready')
@@ -583,7 +520,7 @@ $(function() {
 
 			let _H = info[0].scrollHeight;
 
-			info.addClass('animate').height(_H - header.height())
+			info.addClass('animate').height( _H )
 			.parent().addClass(className)
 		}
 
@@ -920,10 +857,6 @@ function todoListLiTem (data, checked, todoType, nowType) {
 				</div>
 				<ul class="inner">
 					<dl>
-						<dt>标题:</dt>
-						<dd>${_title}</dd>
-					</dl>
-					<dl>
 						<dt>备注:</dt>
 						<dd>
 							<textarea class="inner-box">${_des}</textarea>
@@ -1145,4 +1078,104 @@ function exportData(type) {
 }
 
 
+// 删除指定的类
+function delListDom (ele, table) {
+
+	let li = $('.ready', ele);
+
+	let done = function() {
+
+		getTableList('todoEvent', function(data){
+			console.log(data);
+
+			if (!data.length) {
+				console.warn('remove');
+
+				let removeTime = calendar.reTimeStamp(reTime);
+				let findTime   = parseInt(removeTime.getFullYear()+''+(removeTime.getMonth()+1));
+
+				let keyDone = function (data) {
+					console.log();
+
+					let _day  = removeTime.getDate();
+					let index = data.days.indexOf(_day);
+					data.days.splice(index, 1);
+
+					updataDB('calendarDayEvent', findTime, 'days', data.days, function() {
+						$('#calDay-'+_day).removeClass('events')
+					})
+
+
+				}
+				let keyFail = function(err) {
+					console.error(err)
+				}
+
+				getKeyInfo('calendarDayEvent', findTime, keyDone, keyFail)
+			}
+		}, {
+			filter: 'only',
+			key: 'remindTime',
+			value: reTime
+		})
+		_.remove();
+	}
+
+	let fail = function() {
+		console.error('del fail!')
+	}
+
+	if (ele === '.todo-list-box') {
+		console.log('del event')
+
+		// 
+		let liData = li.data();
+
+		// 对于有时间的事件
+		if (liData.time) {
+			webSQLCommon(
+				`SELECT remindTime, parent FROM todoEvent WHERE date(remindTime)=date(?)`,
+				[liData.time],
+				data => {
+					// 如果当前时间已经没有其它事件了,我们删除日历上的提醒
+					if (data.rows.length == 1) {
+						setCalendarDayEvent({
+							type: 'del', 
+							time: liData.time,
+							parent: data.rows[0].parent
+						})
+					} else {
+						setCalendarDayEvent({
+							type: 'update', 
+							time: liData.time, 
+							parent: data.rows[0].parent,
+							updateType: '-'
+						})
+					}
+				},
+				err => {
+					console.error(err)
+				}
+			)
+		}
+
+		// 删除当前数据
+		webSQLCommon(
+			`DELETE FROM todoEvent WHERE id=?`,
+			[liData.id],
+			data => {
+				console.log(data);
+				// 删除行
+				li.remove();
+			},
+			err => {
+				console.error(err)
+			}
+		)
+
+	} else {
+		console.log('del type')
+	}
+
+}
 

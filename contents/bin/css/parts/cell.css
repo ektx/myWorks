@@ -27,12 +27,12 @@ form button {
 	width: 38px;
 	height: 38px;
 	margin: 0 auto;
-	color: #333;
+	color: #f65f54;
 	font-size: 18px;
 	line-height: 36px;
 	text-align: center;
 	border-radius: 100%;
-	border: 1px solid #bbb;
+	border: 1px solid #ddd;
 	box-sizing: border-box;
 	overflow: hidden;
 	cursor: default;

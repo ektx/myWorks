@@ -320,6 +320,7 @@
 	color: #888;
 	padding-bottom: 5px;
 	margin-top: -4px;
+	font-size: 10px;
 }
 .todo-list-box li .title:focus {
 	outline: none;
