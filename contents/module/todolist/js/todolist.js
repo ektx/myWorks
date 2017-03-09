@@ -43,6 +43,27 @@ $(function() {
 
 		}
 
+
+		// 添加状态
+		// 用于记录用户之前使用的类型
+		webSQLCommon(
+			'SELECT name FROM sqlite_master WHERE type="table" AND name="appInfo"', 
+			[],
+			data => {
+				if (!data.rows.length) {
+					webSQLCreateTable('appInfo','dbversion, currentType', done_app=> {
+						
+						webSQLInsert('appInfo', 'dbversion', [1])
+					});
+
+				}
+			}, 
+			error=> {
+				console.log(error)
+			}
+		)
+		
+
 		// 初始化界面
 		let init_display = ()=> {
 
@@ -102,25 +123,6 @@ $(function() {
 						console.log(addErr)
 					}
 				)
-			}
-		)
-
-		// 添加状态
-		// 用于记录用户之前使用的类型
-		webSQLCommon(
-			'SELECT name FROM sqlite_master WHERE type="table" AND name="appInfo"', 
-			[],
-			data => {
-				if (!data.rows.length) {
-					webSQLCreateTable('appInfo','dbversion, currentType', done_app=> {
-						
-						webSQLInsert('appInfo', 'dbversion', [1])
-					});
-
-				}
-			}, 
-			error=> {
-				console.log(error)
 			}
 		)
 

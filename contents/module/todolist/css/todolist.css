@@ -218,8 +218,6 @@
 	overflow: auto;
 }
 .todo-list-box li {
-	border-bottom: 1px solid #eee;
-	margin-left: 40px;
 	position: relative;
 }
 .todo-list-box li.hold {
@@ -240,10 +238,12 @@
 .todo-list-box .inner {
 	height: 0;
 	line-height: 22px;
+	margin: 0 0 0 40px;
 	color: #999;
 	overflow: hidden;
 	box-sizing: border-box;
 	background-color: #eee;
+	border-bottom: 1px solid #eee;
 }
 .todo-list-box .inner.animate {
 	transition: height .3s ease, background-color .3s ease;
@@ -268,7 +268,7 @@
 	width: 40px;
 	height: 38px;
 	text-align: center;
-	margin-left: -40px;
+	/*margin-left: -40px;*/
 	justify-content: center;
     align-items: center;
     /*background: #fff;*/
