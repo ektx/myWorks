@@ -61,7 +61,26 @@ $(function() {
 			error=> {
 				console.log(error)
 			}
-		)
+		);
+
+
+		// 自动处理 canlendarDays table
+		// 1. 创建一个过渡表
+		webSQLCreateTable('newTable', 'time, sum, dayType', done=> {
+
+			// 2. 复制数据
+			webSQLCommon(
+				`INSERT INTO  newTable (time, sum, dayType) SELECT time, sum, dayType FROM calendarDays`,
+				[],
+				data => {
+					console.log('sss')
+				},
+				err => {
+					console.log(err)
+				}
+			)
+			
+		});
 		
 
 		// 初始化界面

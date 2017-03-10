@@ -32,16 +32,12 @@ form button {
 	line-height: 36px;
 	text-align: center;
 	border-radius: 100%;
-	border: 1px solid #ddd;
+	border: 1px solid;
 	box-sizing: border-box;
 	overflow: hidden;
 	cursor: default;
-	transition: background-color .3s ease;
 }
 
-.data-day-ico:hover {
-	background-color: #ddd;
-}
 
 /* 文字按钮 圆形 */
 .tbtn {
