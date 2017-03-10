@@ -33,9 +33,13 @@ function webSQLCreateTable(name, options, doneCallback, failCallback) {
 /*
 	删除指定表格
 */
-function webSQLDropTable(anme) {
+function webSQLDropTable(name, doneCallback, failCallback) {
 	WEBSQL_CONNECT.transaction( tx => {
-		tx.executeSql(`DROP TABLE ${name}`)
+		tx.executeSql(
+			`DROP TABLE ${name}`, [],
+			(tx, result) => { if (doneCallback) doneCallback(result) },
+			(tx, err) => { if(failCallback) failCallback(err) }
+		)
 	})
 }
 

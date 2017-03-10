@@ -13,10 +13,59 @@ $(function() {
 		}
 	});
 
+
+	// 自动处理 canlendarDays table
+	// 1. 创建一个过渡表
+	let createToggleTable = new Promise((resolve, reject) => {
+		webSQLCreateTable(
+			'newTable', 
+			'time, sum, dayType', 
+			resolve,
+			err => {
+				console.error(err)
+			}
+		)
+	});
+
+	let copyTableData = new Promise( (resolve, reject)=> {
+		// 2. 复制数据
+		webSQLCommon(
+			`INSERT INTO  newTable (time, sum, dayType) SELECT time, sum, dayType FROM calendarDays`,
+			[],
+			resolve,
+			err => {
+				console.error(err)
+			}
+		)
+	});
+
+	let dropOldTable = new Promise( (resolve, reject) => {
+		webSQLDropTable(
+			'calendarDays',
+			resolve, 
+			dropE=> {
+				console.error(dropE)
+			}
+		)
+	});
+
+	let renameTable = ()=> {
+		webSQLCommon(`ALTER TABLE newTable rename to calendarDays`)
+	}
+
+
+	// http://liubin.org/promises-book/#chapter1-what-is-promise
+	createToggleTable
+	.then(copyTableData)
+	.then(dropOldTable)
+	.then(renameTable)
+	.then(init)
+
+
 	/*
 		创建表格 列表
 	*/
-	(function(){
+	function init () {
 		let initApp = () => {
 
 			let done = result => {
@@ -59,28 +108,11 @@ $(function() {
 				}
 			}, 
 			error=> {
-				console.log(error)
+				console.error(error)
 			}
 		);
 
 
-		// 自动处理 canlendarDays table
-		// 1. 创建一个过渡表
-		webSQLCreateTable('newTable', 'time, sum, dayType', done=> {
-
-			// 2. 复制数据
-			webSQLCommon(
-				`INSERT INTO  newTable (time, sum, dayType) SELECT time, sum, dayType FROM calendarDays`,
-				[],
-				data => {
-					console.log('sss')
-				},
-				err => {
-					console.log(err)
-				}
-			)
-			
-		});
 		
 
 		// 初始化界面
@@ -146,7 +178,7 @@ $(function() {
 		)
 
 
-	})();
+	};
 
 	// 主菜单时时日期
 	let setDate = function() {
