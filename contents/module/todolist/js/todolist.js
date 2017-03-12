@@ -13,59 +13,12 @@ $(function() {
 		}
 	});
 
-
-	// 自动处理 canlendarDays table
-	// 1. 创建一个过渡表
-	let createToggleTable = new Promise((resolve, reject) => {
-		webSQLCreateTable(
-			'newTable', 
-			'time, sum, dayType', 
-			resolve,
-			err => {
-				console.error(err)
-			}
-		)
-	});
-
-	let copyTableData = new Promise( (resolve, reject)=> {
-		// 2. 复制数据
-		webSQLCommon(
-			`INSERT INTO  newTable (time, sum, dayType) SELECT time, sum, dayType FROM calendarDays`,
-			[],
-			resolve,
-			err => {
-				console.error(err)
-			}
-		)
-	});
-
-	let dropOldTable = new Promise( (resolve, reject) => {
-		webSQLDropTable(
-			'calendarDays',
-			resolve, 
-			dropE=> {
-				console.error(dropE)
-			}
-		)
-	});
-
-	let renameTable = ()=> {
-		webSQLCommon(`ALTER TABLE newTable rename to calendarDays`)
-	}
-
-
-	// http://liubin.org/promises-book/#chapter1-what-is-promise
-	createToggleTable
-	.then(copyTableData)
-	.then(dropOldTable)
-	.then(renameTable)
-	.then(init)
-
-
 	/*
 		创建表格 列表
 	*/
 	function init () {
+		console.log('初始化...');
+
 		let initApp = () => {
 
 			let done = result => {
@@ -78,42 +31,18 @@ $(function() {
 			webSQLCreateTable('todoType', 'id unique, name', done, fail);
 			webSQLCreateTable('calendarDays', 'time, sum, dayType', done, fail);
 			webSQLCreateTable('todoEvent', 'id unique, title, complete, description, parent, remindTime', done, fail)
+			webSQLCreateTable('appInfo','dbversion, currentType', done, fail);
 
+			webSQLInsert('appInfo', 'dbversion, currentType', [1, 1])
 			webSQLInsert('todoType', 'id, name', [1, '今天'])
 			webSQLInsert('todoType', 'id, name', [2, '计划'])
 
 			webSQLInsert('calendarDays', 'time, sum', ['2017-02-01', 1])
 
-			webSQLInsert('todoEvent', 'id, title, complete, description, remindTime', [1, 'Welcome Use MyWork', 0, 'This is a electron APP!', '2017-02-01 12:00:00'],()=>{
-				console.log('1')
-			}, err=>{
-				console.log(err)
-			})
+			webSQLInsert('todoEvent', 'id, title, complete, description, remindTime', [1, 'Welcome Use MyWork', 0, 'This is a electron APP!', '2017-02-01 12:00:00'])
 
 		}
 
-
-		// 添加状态
-		// 用于记录用户之前使用的类型
-		webSQLCommon(
-			'SELECT name FROM sqlite_master WHERE type="table" AND name="appInfo"', 
-			[],
-			data => {
-				if (!data.rows.length) {
-					webSQLCreateTable('appInfo','dbversion, currentType', done_app=> {
-						
-						webSQLInsert('appInfo', 'dbversion', [1])
-					});
-
-				}
-			}, 
-			error=> {
-				console.error(error)
-			}
-		);
-
-
-		
 
 		// 初始化界面
 		let init_display = ()=> {
@@ -122,8 +51,9 @@ $(function() {
 				`SELECT currentType FROM appInfo`,
 				[],
 				done => {
+					let _id = done.rows[0] ? done.rows[0].currentType : 1;
 					// 展现主菜单
-					generateTodoType ( done.rows[0].currentType );
+					generateTodoType ( _id );
 				},
 				fail => {
 					console.error(fail)
@@ -136,49 +66,26 @@ $(function() {
 
 		// 判断数据库是否有数据在了,没有数据时则初始化应用程序
 		webSQLCommon(
-			'SELECT id FROM todoType WHERE id in (1)', [],
+			'SELECT name FROM sqlite_master WHERE type="table" AND name="appInfo"', [],
 			result => {
 
 				if (result.rows.length) {
 					console.log('初始化完成!')
-				} 
+				}  else {
+					// 初始化数据库
+					initApp()
+				}
 
 				init_display();
 			},
 			err => {
-				console.error(err)
-				console.log('初始化进行...');
-				initApp();
-
-				init_display();
+				console.warn('初始化数据库错误!')
 			} 
 		)
 
-
-		// 为日历追加类型
-		webSQLCommon(
-			`SELECT dayType FROM calendarDays`,
-			[],
-			result => {
-				console.warn(result)
-			},
-			error => {
-				console.error(error);
-				webSQLCommon(
-					`ALTER TABLE calendarDays ADD dayType`,
-					[],
-					addResult => {
-						console.log(addResult)
-					},
-					addErr => {
-						console.log(addErr)
-					}
-				)
-			}
-		)
-
-
 	};
+
+	init()
 
 	// 主菜单时时日期
 	let setDate = function() {

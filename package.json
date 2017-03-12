@@ -3,7 +3,7 @@
   "productName": "myWork",
   "author": "ektx",
   "description": "工作记录",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "main": "main.js",
   "scripts": {
     "start": "NODE_ENV=development ./node_modules/.bin/electron .",
