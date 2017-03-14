@@ -455,9 +455,14 @@ function exportData(type) {
 }
 
 
-// 删除指定的类
+/*
+	删除指定的类
+	-----------------------
+	@ele: 指定要删除的列表区域
+	@table: 数据库表
+*/
 function delListDom (ele, table) {
-
+console.log(ele, table)
 	let li = $('.ready', ele);
 
 	let done = function() {
@@ -551,7 +556,23 @@ function delListDom (ele, table) {
 		)
 
 	} else {
-		console.log('del type')
+		let liData = li.data();
+		console.log('del type', liData);
+
+		webSQLCommon(
+			`SELECT * FROM todoEvent where parent in (?)`,
+			[liData.id],
+			done=> {
+				console.log(done);
+				if (done.rows.length > 0) {
+					alert('Y')
+				}
+			},
+			err=> {
+				console.log(err)
+			}
+
+		)
 	}
 
 }
