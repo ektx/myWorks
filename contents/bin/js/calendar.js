@@ -70,10 +70,20 @@ const calendar = {
 		return result
 	},
 
+	/*
+		DEMO:
+		calendar.format('YYYY-MM-DD')
+		=> 2017-02-01
 
-	// YYMM-MM-DD hh:mm:ss 2017-02-01 08:09:05
-	// MM-M-D h:m:s 17-2-1 8:9:5
+		calendar.format('YYYY-MM-DD hh:mm:ss')
+		=> 2017-02-01 08:09:05
+
+		calendar.format('YY-M-D h:m:s')
+		=> 17-2-1 8:9:5
+
+	*/
 	format: function(str, setTime) {
+
 		let timeArr = str.split(/\W+/);
 		let markArr = str.split(/\w+/);
 		let result = [];
