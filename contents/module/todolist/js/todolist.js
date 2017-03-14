@@ -317,8 +317,6 @@ $(function() {
 		else {
 			let __val = _current.val().trim();
 			if (__val) {
-				// 保存当前
-				_saveType(_current, __val)
 				// 添加新的
 				appendLi()
 			} else {
