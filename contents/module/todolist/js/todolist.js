@@ -230,6 +230,10 @@ $(function() {
 			let queryTime = calendar.format('YYYY-MM-DD', `${YYMM.year}-${YYMM.month}-${date}`);
 			let query = `SELECT * FROM todoEvent WHERE date(remindTime)=date('${queryTime}')`;
 
+			if (typeId > 100) {
+				query += ` AND parent in (${typeId})`;
+			}
+
 			webSQLCommon(query, [], data => {
 				updateTitleTime(date, YYMM.year, YYMM.month, YYMM.week)
 
