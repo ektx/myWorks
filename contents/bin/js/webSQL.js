@@ -74,7 +74,7 @@ function webSQLCommon (query, values, doneCallback, failCallback) {
 		tx.executeSql(
 			query, values,
 			(tx, result) => { if (doneCallback) doneCallback(result) },
-			(tx, err) => { if(failCallback) failCallback(err) }
+			(tx, err) => { if(failCallback) failCallback(err, query) }
 		)
 	})
 }

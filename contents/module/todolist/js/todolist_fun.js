@@ -557,21 +557,79 @@ console.log(ele, table)
 
 	} else {
 		let liData = li.data();
-		console.log('del type', liData);
+
+		let fail = (err, query) => {
+			console.error(err, query)
+		}
+
+		let updateAppInfo = ()=> {
+			// 4.去除 appInfo currentType
+			let removeStatus = ()=>{
+				li.remove()
+			}
+			if (li.hasClass('current')) {
+				webSQLCommon(
+					`UPDATE appInfo SET currentType = (?)`,
+					[1],
+					removeStatus,
+					fail
+				)
+			} else {
+				removeStatus()
+			}
+		}
+
+		let removeType = ()=> {
+			// 3.去除 todoType id
+			webSQLCommon(
+				`DELETE FROM todoType WHERE id in (?)`,
+				[liData.id],
+				updateAppInfo,
+				fail
+			)
+		}
+
+		let removeEvent = ()=> {
+			// 2.去除 todoEvent parent
+			webSQLCommon(
+				`DELETE FROM todoEvent WHERE parent IN (?)`,
+				[liData.id],
+				removeType,
+				fail
+			)
+		}
+
+		let removeCalendarType = ()=> {
+			// 1.去除 calendarDays dayType
+			webSQLCommon(
+				`DELETE FROM calendarDays WHERE dayType in (?)`,
+				[liData.id],
+				removeEvent,
+				fail
+			)
+		}
 
 		webSQLCommon(
 			`SELECT * FROM todoEvent where parent in (?)`,
 			[liData.id],
 			done=> {
-				console.log(done);
+
 				if (done.rows.length > 0) {
-					alert('Y')
+					dialog.showMessageBox({
+						type: 'warning',
+						title: '确认删除',
+						buttons: ['确认','取消'],
+						message: '删除提醒:',
+						detail: `你的分类中存在 ${done.rows.length} 条记录,你确定删除非空分类吗?`,
+						cancelId: 999
+					}, res=> {
+						if (!res) removeCalendarType();
+					})
+				} else {
+					removeCalendarType()
 				}
 			},
-			err=> {
-				console.log(err)
-			}
-
+			fail
 		)
 	}
 
