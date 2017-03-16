@@ -48,9 +48,9 @@ function makeCalendar(year, month, date, id) {
 			}
 
 			// 标记事件
-			if (days.indexOf(_d) > -1) {
-				_class += 'events';
-			}
+			// if (days.indexOf(_d) > -1) {
+			// 	_class += 'events';
+			// }
 
 			if (_class.length) {
 				_class = ' class="'+_class+'"';
@@ -59,7 +59,7 @@ function makeCalendar(year, month, date, id) {
 			calendarHTML += '<li' + calendarDayId + _class + '><span>'+ _d + '</span></li>';
 		}
 
-		$('.calendar-days').html(calendarHTML)
+		$('#calendar-days').html(calendarHTML)
 		.data({
 			'year': year,
 			'month': month,
@@ -68,21 +68,45 @@ function makeCalendar(year, month, date, id) {
 		.parent().prev().find('span').text(year+'年'+month+'月')
 	}
 
+	generateTable(  )
+}
+
+
+/*
+	设置日历上状态
+	------------------------------------------
+*/
+function setCalendarStatus () {
+	
 	let nowTypeID = id || $('.current','#todo-type-list').data().id;
+	let calendardate = calendarTitleTime();
+	let query = `SELECT time FROM calendarDays WHERE time LIKE '${calendarTitleTime().timeStr.substring(0, 7)}%'`;
+
+	if (nowTypeID > 100) {
+		query += ` AND dayType IN (${nowTypeID})`;
+	}
+
+	$('#calendar-days').removeClass( );
 
 	// 摘取此分类事件有日期的标识
 	webSQLCommon(
-		`SELECT time FROM calendarDays WHERE time LIKE '${year}-${month > 10 ? month : '0'+month}%' AND dayType IN (${nowTypeID})`, [], data => {
-		let dayArr = [];
+		query, 
+		[], 
+		data => {
+			let dayArr = [];
 
-		for (let i = 0, l = data.rows.length; i < l; i++) {
-			dayArr.push( parseInt(data.rows[i].time.substr(8)) )
+			for (let i = 0, l = data.rows.length; i < l; i++) {
+				dayArr.push( 'day-'+ parseInt(data.rows[i].time.substr(8)) )
+			}
+
+			if (dayArr.length) 
+				$('#calendar-days').addClass( dayArr.join(' ') );
+				
+		}, 
+		err => {
+			console.log(err)
 		}
-		generateTable( dayArr )
-
-	}, err => {
-		console.log(err)
-	})
+	)
 }
 
 // 生成事件分类列表
@@ -313,7 +337,7 @@ function saveMyToDoList (_this) {
 	获取小日历上的时间
 */
 function calendarTitleTime () {
-	let calendarDays = $('.calendar-days');
+	let calendarDays = $('#calendar-days');
 	let YYMM = calendarDays.data();
 	let year = YYMM.year;
 	let month= YYMM.month;
@@ -364,7 +388,7 @@ function setCalendarDayEvent(obj) {
 	}
 
 	let addRemind = () => {
-		document.querySelector('#calDay-'+parseInt(time.substr(8)), '.calendar-days').classList.toggle('events');
+		document.querySelector('#calDay-'+parseInt(time.substr(8)), '#calendar-days').classList.toggle('events');
 
 	}
 
@@ -462,7 +486,7 @@ function exportData(type) {
 	@table: 数据库表
 */
 function delListDom (ele, table) {
-console.log(ele, table)
+
 	let li = $('.ready', ele);
 
 	let done = function() {
@@ -547,8 +571,9 @@ console.log(ele, table)
 			[liData.id],
 			data => {
 				console.log(data);
-				// 删除行
-				li.remove();
+				// debugger;
+				// 删除行 remove 方法因chrome 56对position sticky的支持问题无法正常使用
+				li.hide(400);
 			},
 			err => {
 				console.error(err)
@@ -565,15 +590,13 @@ console.log(ele, table)
 		let updateAppInfo = ()=> {
 			// 4.去除 appInfo currentType
 			let removeStatus = ()=>{
-				li.remove()
+				li.remove();
+
+
 			}
 			if (li.hasClass('current')) {
-				webSQLCommon(
-					`UPDATE appInfo SET currentType = (?)`,
-					[1],
-					removeStatus,
-					fail
-				)
+				document.querySelector('[data-id="1"]').click();
+				removeStatus()
 			} else {
 				removeStatus()
 			}

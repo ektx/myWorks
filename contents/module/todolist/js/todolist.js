@@ -179,7 +179,7 @@ $(function() {
 	// 上下月切换日历
 	$('button', '.calendar-control').click(function() {
 	
-		let _ = $('.calendar-days').data();
+		let _ = $('#calendar-days').data();
 		let y = _.year;
 		let m = _.month;
 		let d = _.day;
@@ -209,7 +209,7 @@ $(function() {
 		日历选择功能
 		---------------------------
 	*/
-	$('.calendar-days').on('click', 'li', function(){
+	$('#calendar-days').on('click', 'li', function(){
 		let _c = 'current';
 		let _  = $(this);
 		let date   = _.text();
@@ -220,7 +220,7 @@ $(function() {
 
 			_.addClass(_c).siblings().removeClass(_c)
 
-			.parent('.calendar-days').data('day', parseInt(date));
+			.parent('#calendar-days').data('day', parseInt(date));
 			
 			// 移除列表选择
 			if (typeId < 2)
@@ -283,6 +283,9 @@ $(function() {
 		// 添加状态
 		$(this).addClass('current').siblings().removeClass();
 
+		// 更新日历
+		setCalendarStatus()
+
 		// 更新 appInfo currentType
 		webSQLCommon(
 			`UPDATE appInfo SET currentType=?`,
@@ -298,6 +301,8 @@ $(function() {
 	$('#addToDoType').click(function() {
 		let _box = $('#todo-type-list');
 		let _current = _box.find('.create');
+
+		$('ul','.todo-list-box').empty();
 		
 		// 添加
 		let appendLi = function() {
@@ -310,7 +315,11 @@ $(function() {
 			.siblings().removeClass();
 
 			// 隐藏日期
-			titleBox.find('.inner').children().hide();
+			let titleInt = titleBox.find('input');
+			if ( titleInt.hasClass('day') ) {
+				titleInt.removeClass('day')
+			}
+			titleBox.find('.inner').hide();
 		}
 
 		// 如果没有正在新建,则添加一个
