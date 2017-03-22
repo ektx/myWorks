@@ -156,7 +156,20 @@ $(function() {
 
 
 	  	} else if ( $(e.target).parents().is('.todo-list-box') ) {
+
+	  		console.log('xxxxx');
+
+	  		let moveSubMenu = [];
+
+
 	  		let menuArr = [
+	  			{
+	  				label: '移动',
+	  				submenu: moveSubMenu
+	  			},
+	  			{
+	  				type: 'separator'
+	  			},
 	  			{
 			  		// 删除事件
 	  				label: '删除',
@@ -168,7 +181,28 @@ $(function() {
 
 	  		$(e.target).closest('li').addClass('ready').siblings().removeClass('ready');
 
-	  		createMenu( menuArr )
+
+			webSQLCommon(
+				'SELECT * FROM todoType',
+				[],
+				data => {
+					let moveArr = [];
+					console.log(typeof data.rows);
+					for (let i = 0, l = data.rows.length; i < l; i++) {
+						moveSubMenu.push({
+							label: data.rows[i].name,
+							click() {
+								console.log(data.rows[i].id)
+							} 
+						})
+					}
+
+			  		createMenu( menuArr )
+				},
+				err => {
+					console.error(err)
+				}
+			)
 	  	}
 	}, false);
 
