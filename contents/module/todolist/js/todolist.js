@@ -130,7 +130,6 @@ $(function() {
 	  			{
 	  				label: '重命名',
 	  				click(menuItem, browserWindow, e) {
-	  					// console.log(menuItem, browserWindow, e, event);
 	  					renameType()
 	  				}
 	  			},
@@ -138,6 +137,7 @@ $(function() {
 	  				type: 'separator'
 	  			},
 	  			{
+	  				// 删除类型
 	  				label: '删除',
 	  				click() {
 	  					delListDom('#todo-type-list', 'todoType');
@@ -158,6 +158,7 @@ $(function() {
 	  	} else if ( $(e.target).parents().is('.todo-list-box') ) {
 	  		let menuArr = [
 	  			{
+			  		// 删除事件
 	  				label: '删除',
 	  				click() {
 	  					delListDom('.todo-list-box', 'todoEvent')
@@ -363,7 +364,6 @@ $(function() {
 	.on('input', '.title', function() {
 		clearTimeout( SEARCH_DELAY );
 		SEARCH_DELAY = setTimeout(()=>{
-			console.log(this.value);
 			let typeCur = $('.current','#todo-type-list');
 			let query = '';
 
@@ -517,13 +517,12 @@ $(function() {
 		let _ = $(this),
 			_inner = _.parents('.inner');
 
-		_.height(32).parent().height(32);
+		_.height(32);
 
 		let _H = e.target.scrollHeight;
 			
 		_.height( _H );
-		_inner.removeClass('animate').height(_.parent().parent().prev().height() + _H + 29);
-
+		_inner.removeClass('animate').height( _H + 29);
 
 	})
 	// 更新事件内容
@@ -570,13 +569,14 @@ $(function() {
 		$(this).addClass('ready').siblings().removeClass('ready')
 	})
 
+
 	// 添加新的事件
 	$('#add-todo-event').click(function() {
 		let typeLi = $('.current', '#todo-type-list');
 		let parent = '';
 		let isNew = $('[data-id="new"]');
 
-		// 清除功能时
+		// 清除搜索功能
 		if ( this.matches('.clear-search') ) {
 			let searchVal = document.querySelector('.title', '.hd-day-inner');
 			if ( searchVal.value ) {

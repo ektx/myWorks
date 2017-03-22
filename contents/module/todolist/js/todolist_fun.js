@@ -47,11 +47,6 @@ function makeCalendar(year, month, date, id) {
 				_class += 'day current ';
 			}
 
-			// 标记事件
-			// if (days.indexOf(_d) > -1) {
-			// 	_class += 'events';
-			// }
-
 			if (_class.length) {
 				_class = ' class="'+_class+'"';
 			}
@@ -388,8 +383,16 @@ function setCalendarDayEvent(obj) {
 	}
 
 	let addRemind = () => {
-		document.querySelector('#calDay-'+parseInt(time.substr(8)), '#calendar-days').classList.toggle('events');
+		let setDayClass = 'day-'+parseInt(time.substr(8));
+		let calendarUl  = document.getElementById('calendar-days');
 
+		if (!calendarUl.matches('.'+setDayClass) && type === 'add') {
+			calendarUl.classList.add(setDayClass)
+		}
+
+		if (type === 'del') {
+			calendarUl.classList.remove(setDayClass)
+		}
 	}
 
 	switch (type) {
@@ -489,44 +492,6 @@ function delListDom (ele, table) {
 
 	let li = $('.ready', ele);
 
-	let done = function() {
-
-		getTableList('todoEvent', function(data){
-			console.log(data);
-
-			if (!data.length) {
-				console.warn('remove');
-
-				let removeTime = calendar.reTimeStamp(reTime);
-				let findTime   = parseInt(removeTime.getFullYear()+''+(removeTime.getMonth()+1));
-
-				let keyDone = function (data) {
-					console.log();
-
-					let _day  = removeTime.getDate();
-					let index = data.days.indexOf(_day);
-					data.days.splice(index, 1);
-
-					updataDB('calendarDayEvent', findTime, 'days', data.days, function() {
-						$('#calDay-'+_day).removeClass('events')
-					})
-
-
-				}
-				let keyFail = function(err) {
-					console.error(err)
-				}
-
-				getKeyInfo('calendarDayEvent', findTime, keyDone, keyFail)
-			}
-		}, {
-			filter: 'only',
-			key: 'remindTime',
-			value: reTime
-		})
-		_.remove();
-	}
-
 	let fail = function() {
 		console.error('del fail!')
 	}
@@ -591,9 +556,8 @@ function delListDom (ele, table) {
 			// 4.去除 appInfo currentType
 			let removeStatus = ()=>{
 				li.remove();
-
-
 			}
+
 			if (li.hasClass('current')) {
 				document.querySelector('[data-id="1"]').click();
 				removeStatus()
