@@ -101,7 +101,10 @@ $(function() {
 		
 	}
 	setDate();
-	setInterval(setDate, 1000);
+
+	window.onfocus = ()=>{
+		setDate()
+	}
 
 
 	/*
