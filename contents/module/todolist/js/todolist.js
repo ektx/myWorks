@@ -160,6 +160,7 @@ $(function() {
 	  		console.log('xxxxx');
 
 	  		let moveSubMenu = [];
+	  		let currentTypeId = document.querySelector('#todo-type-list .current').dataset.id;
 
 
 	  		let menuArr = [
@@ -189,12 +190,17 @@ $(function() {
 					let moveArr = [];
 					console.log(typeof data.rows);
 					for (let i = 0, l = data.rows.length; i < l; i++) {
-						moveSubMenu.push({
-							label: data.rows[i].name,
-							click() {
-								console.log(data.rows[i].id)
-							} 
-						})
+
+						if (data.rows[i].id > 100) {
+							if (data.rows[i].id != currentTypeId) {
+								moveSubMenu.push({
+									label: data.rows[i].name,
+									click() {
+										console.log(data.rows[i].id)
+									} 
+								})
+							}
+						}
 					}
 
 			  		createMenu( menuArr )
