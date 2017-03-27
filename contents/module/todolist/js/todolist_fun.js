@@ -195,6 +195,16 @@ function genToDoList (data, todoType) {
 			for (let i = 0, l = result.rows.length; i < l; i++) {
 				typeObj[result.rows[i].id] = result.rows[i].name;
 			}
+console.log(data);
+			
+			if (data.length === 0) {
+				document.querySelector('.no-work-plane').classList.add('show')
+
+			} else {
+
+				document.querySelector('.no-work-plane').classList.remove('show')
+
+			}
 
 			for (let i = 0, l = data.length; i < l; i++) {
 				let _data = data[i];
@@ -204,6 +214,7 @@ function genToDoList (data, todoType) {
 			}
 
 			$('ul','.todo-list-box').html( liHTML )
+
 			
 		},
 		err => {
@@ -287,7 +298,12 @@ function saveMyToDoList (_this) {
 
 	// 没有写标题的不算~
 	if (!title) {
-		_this.remove()
+		_this.remove();
+
+		// 如果没有添加任何事情,那之前如果有工作的提醒,则显示回来
+		let remindTips = document.querySelector('.no-work-plane');
+		if (remindTips) remindTips.classList.remove('fadeOut');
+
 		return;
 	}
 
@@ -303,10 +319,8 @@ function saveMyToDoList (_this) {
 
 		// 在有时间提醒时 处理日历上事件效果
 		if (reTime) {
-			let _type = 'update';
-			if (!calTime.hasEvent) {
-				_type = 'add';
-			}
+			let _type = 'add';
+
 			setCalendarDayEvent({
 				type: _type, 
 				time: reTime,
@@ -365,8 +379,9 @@ function calendarTitleTime () {
 
 /*
 	更新或添加日历索引
-	@type  add | update | del
-	@time  日历事件时间
+	@type    add | del
+	@time    日历事件时间
+	@parent  类别
 */
 function setCalendarDayEvent(obj) {
 
@@ -382,49 +397,98 @@ function setCalendarDayEvent(obj) {
 		console.error(err)
 	}
 
+	// 更新日历状态
 	let addRemind = () => {
 		let setDayClass = 'day-'+parseInt(time.substr(8));
 		let calendarUl  = document.getElementById('calendar-days');
+		let currentType = document.getElementById('todo-type-list').querySelector('.current').dataset.id;
+
 
 		if (!calendarUl.matches('.'+setDayClass) && type === 'add') {
 			calendarUl.classList.add(setDayClass)
 		}
 
 		if (type === 'del') {
-			calendarUl.classList.remove(setDayClass)
+			// 在所有计划类型时
+			if (currentType == 2) {
+				webSQLCommon(
+					`SELECT * FROM calendarDays WHERE time = ?`,
+					[time],
+					data => {
+						if((data.rows.length ? data.rows[0].sum : 0) == 0) {
+							calendarUl.classList.remove(setDayClass)
+						}
+					},
+					fail
+				)
+			} 
+			// 在自己的类别下时
+			else {
+				calendarUl.classList.remove(setDayClass)
+			}
 		}
 	}
 
-	switch (type) {
-		case 'update':
-
-			webSQLCommon(
-				`UPDATE calendarDays SET sum = sum${obj.updateType}1 WHERE time = ?`,
-				[time], 
-				data => {
-					webSQLCommon(
-						`UPDATE todoEvent SET complete=? WHERE id = ?`, 
-						[this.checked ? 1:0, id],
-						done,
-						fail
-					)
-				}, 
-				fail
-			)
-			break;
-
-		case 'add':
-			webSQLInsert('calendarDays', 'time, sum, dayType', [time, 1, parent], addRemind, fail);
-			break;
-
-		case 'del':
-			webSQLCommon(
-				`DELETE FROM calendarDays WHERE time=?`,
-				[time],
-				addRemind,
-				fail
-			)
+	// 更新数据库状态
+	// @set [string] {-|+}
+	let updateCalendarDay = set => {
+		webSQLCommon(
+			`UPDATE calendarDays SET sum = sum${set}1 WHERE time = ? AND dayType = ?`,
+			[time, parent], 
+			data => {
+				webSQLCommon(
+					`UPDATE todoEvent SET complete=? WHERE id = ?`, 
+					[this.checked ? 1:0, id],
+					done,
+					fail
+				)
+			}, 
+			fail
+		)
 	}
+
+	// 智能分类操作
+	let setStatus = (size) => {
+
+		if (type === 'add') {
+			// 如果此类型的日期上从来没有数据
+			// 我们则创建一个
+			if (size === 0) {
+				webSQLInsert('calendarDays', 'time, sum, dayType', [time, 1, parent], addRemind, fail);
+			} 
+			// 反之,我们就递增
+			else {
+				updateCalendarDay('+')
+			}
+		} 
+		else if (type === 'del') {
+			// 如果这个类型的日期上只有一条数据时
+			// 些时我们就删除它了
+			if (size === 1) {
+				webSQLCommon(
+					`DELETE FROM calendarDays WHERE time=? AND dayType = ?`,
+					[time, parent],
+					addRemind,
+					fail
+				)
+			}
+			// 数据大于1时,我们就递减 
+			else {
+				updateCalendarDay('-')
+			}
+		}
+	}
+
+	// 查询基础数据
+	webSQLCommon(
+		`SELECT * FROM calendarDays WHERE time = ? AND dayType = ?`,
+		[time, parseInt(parent)],
+		data => {
+			setStatus(data.rows.length ? data.rows[0].sum : 0);
+		},
+		fail
+	)
+
 }
 
 
@@ -504,30 +568,11 @@ function delListDom (ele, table) {
 
 		// 对于有时间的事件
 		if (liData.time) {
-			webSQLCommon(
-				`SELECT remindTime, parent FROM todoEvent WHERE date(remindTime)=date(?)`,
-				[liData.time],
-				data => {
-					// 如果当前时间已经没有其它事件了,我们删除日历上的提醒
-					if (data.rows.length == 1) {
-						setCalendarDayEvent({
-							type: 'del', 
-							time: liData.time,
-							parent: data.rows[0].parent
-						})
-					} else {
-						setCalendarDayEvent({
-							type: 'update', 
-							time: liData.time, 
-							parent: data.rows[0].parent,
-							updateType: '-'
-						})
-					}
-				},
-				err => {
-					console.error(err)
-				}
-			)
+			setCalendarDayEvent({
+				type: 'del', 
+				time: liData.time,
+				parent: liData.parent
+			})
 		}
 
 		// 删除当前数据
@@ -621,4 +666,46 @@ function delListDom (ele, table) {
 	}
 
 }
+
+
+/*
+	
+*/
+function moveToOtherType (saveTypeID, eventID) {
+
+	// 移动类型
+	webSQLCommon(
+		`UPDATE todoEvent SET parent = ? WHERE id= ? `,
+		[saveTypeID, eventID],
+		done => {
+			console.log(done)
+		},
+		err => {
+			console.error(err)
+		}
+	);
+
+	// 修改日历标识
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

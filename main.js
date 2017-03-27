@@ -50,7 +50,7 @@ function createWindow(options) {
 		titleBarStyle: options.titleBarStyle,
 		// backgroundColor: options.bg,
 		ico: path.join(__dirname, 'contents/bin/img/usr/kings.png'),
-		vibrancy: 'medium-light' // dark | light |
+		vibrancy: 'light' // dark | light |
 	}
 
 	if (options.x) {

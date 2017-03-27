@@ -2,8 +2,12 @@
 
 const {app, Menu, dialog} = nodeRequire('electron').remote;
 const ipcRenderer = nodeRequire('electron').ipcRenderer;
-const fs = nodeRequire('fs');
 
+// require node modules
+const fs = nodeRequire('fs');
+const async = nodeRequire('async');
+
+// use browser doc mod
 const _doc = document;
 
 // 关闭窗口功能

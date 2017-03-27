@@ -160,11 +160,8 @@ $(function() {
 
 	  	} else if ( $(e.target).parents().is('.todo-list-box') ) {
 
-	  		console.log('xxxxx');
-
 	  		let moveSubMenu = [];
 	  		let currentTypeId = document.querySelector('#todo-type-list .current').dataset.id;
-
 
 	  		let menuArr = [
 	  			{
@@ -185,13 +182,11 @@ $(function() {
 
 	  		$(e.target).closest('li').addClass('ready').siblings().removeClass('ready');
 
-
 			webSQLCommon(
 				'SELECT * FROM todoType',
 				[],
 				data => {
 					let moveArr = [];
-					console.log(typeof data.rows);
 					for (let i = 0, l = data.rows.length; i < l; i++) {
 
 						if (data.rows[i].id > 100) {
@@ -199,7 +194,11 @@ $(function() {
 								moveSubMenu.push({
 									label: data.rows[i].name,
 									click() {
-										console.log(data.rows[i].id)
+										debugger;
+										let thisID = parseInt(document.querySelector('.todo-list-box .ready').dataset.id);
+										console.log(data.rows[i].id);
+										console.log(thisID);
+										moveToOtherType(data.rows[i].id, thisID)
 									} 
 								})
 							}
@@ -631,6 +630,13 @@ $(function() {
 		} 
 		// 添加功能时
 		else {
+
+			// 清除今天没有工作的提醒
+			let remindTips = document.querySelector('.no-work-plane');
+			
+			if (remindTips) {
+				remindTips.classList.add('fadeOut');
+			}
 
 			if ( isNew.length ) {
 				isNew.find('.title').focus()

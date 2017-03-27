@@ -15,15 +15,15 @@
 	display: flex;
 	flex-direction: column;
 	width: 220px;
-	border-right: 1px solid #ddd;
+	border-right: 1px solid #e4e4e4;
 	box-sizing: border-box;
-	background: rgba(255, 255, 255, .7);
+	background: rgba(255, 255, 255, .5);
 }
 .os-day-works-box {
 	display: flex;
 	flex: 1;
 	flex-direction: column;
-	background-color: rgba(255, 255, 255, .9);
+	background-color: rgba(255, 255, 255, .85);
 	overflow: hidden;
 	position: relative;
 }
@@ -31,7 +31,7 @@
 .calendar-box {
 	font-size: 0;
 	padding: 3px;
-	border-top: 1px solid #eee;
+	border-top: 1px solid #e4e4e4;
 }
 .calendar-box ul:first-child {
 	font-weight: bold;
@@ -246,6 +246,10 @@
 .todo-list-box {
 	flex: 1;
 	overflow: auto;
+	position: relative;
+}
+.todo-list-box > ul {
+	height: 100%;
 }
 .todo-list-box li {
 	position: relative;
@@ -265,6 +269,35 @@
 	top: 61px;
 	left: 40px;
 }
+
+.no-work-plane {
+	visibility: hidden;
+	height: 100%;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+	display: flex;
+	color: #999;
+	flex-direction: column;
+
+	position: absolute;
+}
+.no-work-plane.show {
+	visibility: visible;
+}
+.no-work-plane.fadeOut {
+	transform: translateY(-100px);
+	opacity: 0;
+	transition: visibility .4s ease, transform .4s ease, opacity .4s ease;
+}
+.no-work-plane h3 {
+    font-size: 14px;
+	transform: translateY(-60px);
+}
+.no-work-plane .remid-msg {
+	transform: translateY(-50px);
+}
+
 .todo-list-box .inner {
 	height: 0;
 	line-height: 22px;
