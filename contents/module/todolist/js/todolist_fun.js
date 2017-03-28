@@ -380,7 +380,7 @@ function calendarTitleTime () {
 /*
 	更新或添加日历索引
 	@type    add | del
-	@time    日历事件时间
+	@time    日历事件时间  eg: 2017-04-01
 	@parent  类别
 */
 function setCalendarDayEvent(obj) {
@@ -399,12 +399,12 @@ function setCalendarDayEvent(obj) {
 
 	// 更新日历状态
 	let addRemind = () => {
+
 		let setDayClass = 'day-'+parseInt(time.substr(8));
 		let calendarUl  = document.getElementById('calendar-days');
 		let currentType = document.getElementById('todo-type-list').querySelector('.current').dataset.id;
 
-
-		if (!calendarUl.matches('.'+setDayClass) && type === 'add') {
+		if (!calendarUl.matches('.'+setDayClass) && type === 'add' && currentType == parent) {
 			calendarUl.classList.add(setDayClass)
 		}
 
@@ -423,7 +423,7 @@ function setCalendarDayEvent(obj) {
 				)
 			} 
 			// 在自己的类别下时
-			else {
+			else if (currentType == parent) {
 				calendarUl.classList.remove(setDayClass)
 			}
 		}
@@ -669,23 +669,46 @@ function delListDom (ele, table) {
 
 
 /*
-	
+	liDataset    {object} 当前事件上的数据
+	toSaveParent {id}     保存到的新类型
 */
-function moveToOtherType (saveTypeID, eventID) {
+function moveToOtherType (liDataset, toSaveParent, callback) {
 
-	// 移动类型
-	webSQLCommon(
-		`UPDATE todoEvent SET parent = ? WHERE id= ? `,
-		[saveTypeID, eventID],
-		done => {
-			console.log(done)
-		},
-		err => {
-			console.error(err)
-		}
-	);
 
 	// 修改日历标识
+	async.parallel([
+		callback => {
+			// 移动类型
+			webSQLCommon(
+				`UPDATE todoEvent SET parent = ? WHERE id= ? `,
+				[toSaveParent, parseInt(liDataset.id)],
+				done => {
+					callback(null, done)
+				}
+			);
+		},
+		callback => {
+			setCalendarDayEvent({
+				type: 'del',
+				time: liDataset.time,
+				parent: parseInt(liDataset.parent)
+			})
+			callback(null)
+		},
+		callback => {
+			setCalendarDayEvent({
+				type: 'add', 
+				time: liDataset.time, 
+				parent: toSaveParent
+			})
+			callback(null)
+		}
+	], (err, result) => {
+		if (err) return console.log(err);
+
+		if (callback) callback()
+
+	})
 
 
 }

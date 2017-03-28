@@ -194,11 +194,14 @@ $(function() {
 								moveSubMenu.push({
 									label: data.rows[i].name,
 									click() {
-										debugger;
-										let thisID = parseInt(document.querySelector('.todo-list-box .ready').dataset.id);
-										console.log(data.rows[i].id);
-										console.log(thisID);
-										moveToOtherType(data.rows[i].id, thisID)
+										let thisLi = document.querySelector('.todo-list-box .ready');
+										moveToOtherType(
+											thisLi.dataset, 
+											data.rows[i].id, 
+											()=> {
+												thisLi.remove()
+											}
+										)
 									} 
 								})
 							}
