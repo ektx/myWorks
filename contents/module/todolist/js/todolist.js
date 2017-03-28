@@ -165,7 +165,7 @@ $(function() {
 
 	  		let menuArr = [
 	  			{
-	  				label: '移动',
+	  				label: '移到列表',
 	  				submenu: moveSubMenu
 	  			},
 	  			{
@@ -178,7 +178,41 @@ $(function() {
 	  					delListDom('.todo-list-box', 'todoEvent')
 	  				}
 	  			}
-	  		]
+	  		];
+
+	  		/*
+	  			生成移动二级菜单
+	  			-----------------------------------
+	  			@data [object] 目前类型所有集合
+	  		*/
+	  		let makeMoveSubMenu = data => {
+	  			let moveArr = [];
+				let thisLi = document.querySelector('.todo-list-box .ready');
+				for (let i = 0, l = data.rows.length; i < l; i++) {
+
+					if (data.rows[i].id > 100) {
+						// 非自己的父级显示出来
+						if (data.rows[i].id != thisLi.dataset.parent) {
+							moveSubMenu.push({
+								label: data.rows[i].name,
+								checked: true,
+								type: 'checkbox',
+								click() {
+									moveToOtherType(
+										thisLi.dataset, 
+										data.rows[i].id, 
+										()=> {
+											thisLi.remove()
+										}
+									)
+								} 
+							})
+						}
+					}
+				}
+
+		  		createMenu( menuArr )
+	  		}
 
 	  		$(e.target).closest('li').addClass('ready').siblings().removeClass('ready');
 
@@ -186,32 +220,10 @@ $(function() {
 				'SELECT * FROM todoType',
 				[],
 				data => {
-					let moveArr = [];
-					for (let i = 0, l = data.rows.length; i < l; i++) {
-
-						if (data.rows[i].id > 100) {
-							if (data.rows[i].id != currentTypeId) {
-								moveSubMenu.push({
-									label: data.rows[i].name,
-									click() {
-										let thisLi = document.querySelector('.todo-list-box .ready');
-										moveToOtherType(
-											thisLi.dataset, 
-											data.rows[i].id, 
-											()=> {
-												thisLi.remove()
-											}
-										)
-									} 
-								})
-							}
-						}
-					}
-
-			  		createMenu( menuArr )
+					makeMoveSubMenu(data);
 				},
 				err => {
-					console.error(err)
+					console.error(err);
 				}
 			)
 	  	}

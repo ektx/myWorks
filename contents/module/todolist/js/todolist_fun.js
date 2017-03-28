@@ -424,7 +424,7 @@ function setCalendarDayEvent(obj) {
 			} 
 			// 在自己的类别下时
 			else if (currentType == parent) {
-				calendarUl.classList.remove(setDayClass)
+				calendarUl.classList.remove(setDayClass);
 			}
 		}
 	}
