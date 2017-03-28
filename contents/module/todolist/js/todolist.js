@@ -191,22 +191,25 @@ $(function() {
 				for (let i = 0, l = data.rows.length; i < l; i++) {
 
 					if (data.rows[i].id > 100) {
+
+						let isSelf = data.rows[i].id == thisLi.dataset.parent ? true : false;
 						// 非自己的父级显示出来
+						moveSubMenu.push({
+							label: data.rows[i].name,
+							checked: isSelf,
+							type: 'checkbox',
+							enabled: !isSelf,
+							click() {
+								moveToOtherType(
+									thisLi.dataset, 
+									data.rows[i].id, 
+									()=> {
+										thisLi.remove()
+									}
+								)
+							} 
+						})
 						if (data.rows[i].id != thisLi.dataset.parent) {
-							moveSubMenu.push({
-								label: data.rows[i].name,
-								checked: true,
-								type: 'checkbox',
-								click() {
-									moveToOtherType(
-										thisLi.dataset, 
-										data.rows[i].id, 
-										()=> {
-											thisLi.remove()
-										}
-									)
-								} 
-							})
 						}
 					}
 				}
