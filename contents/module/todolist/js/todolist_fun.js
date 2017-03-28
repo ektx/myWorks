@@ -195,10 +195,12 @@ function genToDoList (data, todoType) {
 			for (let i = 0, l = result.rows.length; i < l; i++) {
 				typeObj[result.rows[i].id] = result.rows[i].name;
 			}
-console.log(data);
 			
 			if (data.length === 0) {
-				document.querySelector('.no-work-plane').classList.add('show')
+				let noWorkDiv = document.querySelector('.no-work-plane').classList;
+				
+				noWorkDiv.remove('fadeOut')
+				noWorkDiv.add('show')
 
 			} else {
 
