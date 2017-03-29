@@ -300,12 +300,12 @@ function saveMyToDoList (_this) {
 
 	// 没有写标题的不算~
 	if (!title) {
-		_this.remove();
 
 		// 如果没有添加任何事情,那之前如果有工作的提醒,则显示回来
 		let remindTips = document.querySelector('.no-work-plane');
-		if (remindTips) remindTips.classList.remove('fadeOut');
+		if (remindTips && !_this.siblings(':visible').length) remindTips.classList.remove('fadeOut');
 
+		_this.remove();
 		return;
 	}
 
@@ -549,7 +549,7 @@ function exportData(type) {
 
 
 /*
-	删除指定的类
+	删除列表功能
 	-----------------------
 	@ele: 指定要删除的列表区域
 	@table: 数据库表
@@ -583,7 +583,13 @@ function delListDom (ele, table) {
 			[liData.id],
 			data => {
 				console.log(data);
-				// debugger;
+				// 判断是否显示提醒
+				if (!li.siblings(':visible').length) {
+					let noWorkDivCss = document.querySelector('.no-work-plane').classList;
+					noWorkDivCss.add('show');
+					noWorkDivCss.remove('fadeOut');
+				}
+
 				// 删除行 remove 方法因chrome 56对position sticky的支持问题无法正常使用
 				li.hide(400);
 			},
