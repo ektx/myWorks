@@ -70,12 +70,18 @@ function makeCalendar(year, month, date, id) {
 /*
 	设置日历上状态
 	------------------------------------------
+	@id [number] 当前列表选择
+	@month [data] 想要查询的时间, eg: 2017-04
 */
-function setCalendarStatus () {
+function setCalendarStatus (id, month) {
 	
 	let nowTypeID = id || $('.current','#todo-type-list').data().id;
-	let calendardate = calendarTitleTime();
-	let query = `SELECT time FROM calendarDays WHERE time LIKE '${calendarTitleTime().timeStr.substring(0, 7)}%'`;
+
+	if (!month) {
+		let calendardate = calendarTitleTime().timeStr.substring(0, 7);
+	}
+
+	let query = `SELECT time FROM calendarDays WHERE time LIKE '${month}%'`;
 
 	if (nowTypeID > 100) {
 		query += ` AND dayType IN (${nowTypeID})`;
@@ -348,6 +354,7 @@ function saveMyToDoList (_this) {
 	获取小日历上的时间
 */
 function calendarTitleTime () {
+
 	let calendarDays = $('#calendar-days');
 	let YYMM = calendarDays.data();
 	let year = YYMM.year;
@@ -374,7 +381,8 @@ function calendarTitleTime () {
 		sed: sed,
 		time: time,
 		timeStr: `${year}-${month < 10 ? '0'+month: month}-${day<10?'0'+day:day}`,
-		hasEvent: events
+		hasEvent: events,
+		hasSelect: currentDay.length > 0 ? true : false
 	}
 }
 

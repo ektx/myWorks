@@ -312,25 +312,59 @@ $(function() {
 	/*
 		计划列表功能
 	*/
-	$('#todo-type-list').on('click', 'li', function() {
+	$('#todo-type-list')
+	.on('click', 'li', function() {
+
+		/*
+			选择列表功能
+			--------------------------------------------
+		*/
 
 		// 对添加功能
 		let addBtn = document.getElementById('add-todo-event');
+		// 今天
+		let _today = calendar.format('YYYY-MM-DD');
+		// 日历上选择时间
 		let _calendarTemp = calendarTitleTime();
+
 		let findTime = _calendarTemp.year ? _calendarTemp.timeStr : calendar.format('YYYY-MM-DD');
 
-		if (addBtn.matches('.clear-search')) addBtn.classList.remove('clear-search');
+		// 移除搜索功能与状态
+		if (addBtn.classList.contains('clear-search')) addBtn.classList.remove('clear-search');
 
-		let _ = $(this),
-			txt = _.find('input').val();
-			titleBox = $('.os-day-header'),
-			id = this.dataset.id,
-			query = `SELECT * FROM todoEvent WHERE parent in (${id}) AND date(remindTime)=date('${findTime}') ORDER BY id DESC`;
+		// 当前元素
+		let _ = $(this);
+		// 当前值
+		let	txt = _.find('input').val();
 
-		if (id == 2) {
-			query = 'SELECT * FROM todoEvent ORDER BY id DESC'
-		} else if (id == 1) {
-			query = `SELECT * FROM todoEvent WHERE date(remindTime)=date('${calendar.format('YYYY-MM-DD')}') ORDER BY id DESC`
+		let	titleBox = $('.os-day-header');
+		// 当前 id
+		let	id = this.dataset.id;
+		// 默认查询条件
+		let	query = `SELECT * FROM todoEvent WHERE parent in (${id}) AND date(remindTime)=date('${findTime}') ORDER BY id DESC`;
+
+		if (id < 100) {
+			// 如果日历选择不是今天
+			if (_today != _calendarTemp.timeStr && _calendarTemp.hasSelect) {
+				// 移除状态
+				_calendarTemp.ele[0].classList.remove('current')
+			}
+	
+			// 选择所有时
+			if (id == 2) {
+				query = 'SELECT * FROM todoEvent ORDER BY id DESC'
+			} 
+			// 选择今天时
+			else if (id == 1) {
+				
+
+				// 重设查询条件
+				query = `SELECT * FROM todoEvent WHERE date(remindTime)=date('${_today}') ORDER BY id DESC`
+			}
+		} else {
+			if (_today != _calendarTemp.timeStr && !_calendarTemp.hasSelect) {
+				document.querySelector(`#calDay-${_calendarTemp.day}`).classList.add('current')
+			}
 		}
 
 		webSQLCommon(query,[], (data)=>{
@@ -341,13 +375,15 @@ $(function() {
 		}, err=>{
 			console.log(err)
 		})
+		
 		// 添加状态
 		$(this).addClass('current').siblings().removeClass();
 
 		// 更新日历
-		setCalendarStatus()
+		// 将日历更新为当前月的日历
+		setCalendarStatus(id, _calendarTemp.timeStr.substring(0, 7))
 
-		// 更新 appInfo currentType
+		// 更新当前状态,方便刷新可见
 		webSQLCommon(
 			`UPDATE appInfo SET currentType=?`,
 			[id]
