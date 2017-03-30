@@ -448,7 +448,7 @@ function setCalendarDayEvent(obj) {
 			data => {
 				webSQLCommon(
 					`UPDATE todoEvent SET complete=? WHERE id = ?`, 
-					[this.checked ? 1:0, id],
+					[this.checked ? 1:0, parent],
 					done,
 					fail
 				)
@@ -571,7 +571,6 @@ function delListDom (ele, table) {
 	}
 
 	if (ele === '.todo-list-box') {
-		console.log('del event')
 
 		// 
 		let liData = li.data();
@@ -616,6 +615,7 @@ function delListDom (ele, table) {
 		let updateAppInfo = ()=> {
 			// 4.去除 appInfo currentType
 			let removeStatus = ()=>{
+				debugger;
 				li.remove();
 			}
 
