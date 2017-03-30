@@ -356,7 +356,7 @@ $(function() {
 			} 
 			// 选择今天时
 			else if (id == 1) {
-				
+				$('#calendar-days').data().day = new Date().getDate();
 
 				// 重设查询条件
 				query = `SELECT * FROM todoEvent WHERE date(remindTime)=date('${_today}') ORDER BY id DESC`
