@@ -243,14 +243,9 @@ function todoListLiTem (data, checked, todoType, nowType) {
 
 	nowType = nowType || {};
 
-	let descriptionMod = '';
+	let descriptionMod = todoType[data.parent];
 
-	// 存在分类的 我们也得到分类集合 现在点击的分类不是当前此条的归类时
-	if (data.parent && typeof todoType === 'object' && nowType.id != data.parent) {
-		descriptionMod = `<p class="title-help-info">
-							<span>${todoType[data.parent]}</span>
-						</p>`;
-	}
+	descriptionMod = descriptionMod ? descriptionMod : '';
 
 	return  `<li data-id="${_id}" 
 				 data-parent="${data.parent}" 
@@ -262,7 +257,9 @@ function todoListLiTem (data, checked, todoType, nowType) {
 					</label>
 					<div class="title-box">
 						<input class="title" value="${_title}" />
-						${descriptionMod}
+						<p class="title-help-info">
+							<span class="et-thi-typeName">${descriptionMod}</span>
+						</p>
 					</div>
 					<span class="li-btns-box">
 						<button class="tbtn arrow-ico down-arrow"></button>
@@ -684,10 +681,14 @@ function delListDom (ele, table) {
 
 
 /*
-	liDataset    {object} 当前事件上的数据
-	toSaveParent {id}     保存到的新类型
+
+	---------------------------------------------------
+	@liDataset    	{object}   	当前事件上的数据
+	@toSaveParent 	{id}       	保存到的新类型
+	@toSaveName 	{string}    保存到的新类型名称
+	@callback     	{function}	回调函数
 */
-function moveToOtherType (liDataset, toSaveParent, callback) {
+function moveToOtherType (liDataset, toSaveParent, toSaveName, callback) {
 
 
 	// 修改日历标识
@@ -721,7 +722,7 @@ function moveToOtherType (liDataset, toSaveParent, callback) {
 	], (err, result) => {
 		if (err) return console.log(err);
 
-		if (callback) callback()
+		if (callback) callback(toSaveName)
 
 	})
 

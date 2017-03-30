@@ -187,6 +187,19 @@ $(function() {
 	  		let makeMoveSubMenu = data => {
 	  			let moveArr = [];
 				let thisLi = document.querySelector('.todo-list-box .ready');
+
+				let setLiStatus = function (name) {
+					let currentTypeId = document.querySelector('#todo-type-list .current').dataset.id;
+
+					if (currentTypeId > 100) {
+						thisLi.remove(400)
+					} else {
+						thisLi.querySelector('.title-help-info span').innerText = name
+					}
+				}
+
+				// if (!thisLi.dataset.parent) return;
+
 				for (let i = 0, l = data.rows.length; i < l; i++) {
 
 					if (data.rows[i].id > 100) {
@@ -201,22 +214,15 @@ $(function() {
 							click() {
 								moveToOtherType(
 									thisLi.dataset, 
-									data.rows[i].id, 
-									()=> {
-
-										debugger;
-								  		let currentTypeId = document.querySelector('#todo-type-list .current').dataset.id;
-
-								  		if (currentTypeId > 100) {
-											thisLi.remove()
-								  		} else {
-								  			
-								  		}
-
+									data.rows[i].id,
+									data.rows[i].name, 
+									(name)=> {
+								  		setLiStatus(name)
 									}
 								)
 							} 
 						})
+
 						if (data.rows[i].id != thisLi.dataset.parent) {
 						}
 					}
