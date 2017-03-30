@@ -615,7 +615,6 @@ function delListDom (ele, table) {
 		let updateAppInfo = ()=> {
 			// 4.去除 appInfo currentType
 			let removeStatus = ()=>{
-				debugger;
 				li.remove();
 			}
 

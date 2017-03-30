@@ -161,7 +161,6 @@ $(function() {
 	  	} else if ( $(e.target).parents().is('.todo-list-box') ) {
 
 	  		let moveSubMenu = [];
-	  		let currentTypeId = document.querySelector('#todo-type-list .current').dataset.id;
 
 	  		let menuArr = [
 	  			{
@@ -204,7 +203,16 @@ $(function() {
 									thisLi.dataset, 
 									data.rows[i].id, 
 									()=> {
-										thisLi.remove()
+
+										debugger;
+								  		let currentTypeId = document.querySelector('#todo-type-list .current').dataset.id;
+
+								  		if (currentTypeId > 100) {
+											thisLi.remove()
+								  		} else {
+								  			
+								  		}
+
 									}
 								)
 							} 
