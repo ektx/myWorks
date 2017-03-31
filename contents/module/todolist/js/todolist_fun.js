@@ -237,15 +237,21 @@ function genToDoList (data, todoType) {
 	-------------------------------
 */
 function todoListLiTem (data, checked, todoType, nowType) {
-	let _title = data.title || '',
-		_des = data.description || '';
+	let _title = data.title || '';
+	let	_des = data.description || '';
 	let	_id = data.id || 'new';
+	let descriptionMod = '';
 
 	nowType = nowType || {};
 
-	let descriptionMod = todoType[data.parent];
+	// 如果存在列表集合
+	if (todoType) {
 
-	descriptionMod = descriptionMod ? descriptionMod : '';
+		// 如果当前类型和查询的一样
+		if (nowType.id != data.parent)
+
+			descriptionMod = todoType[data.parent];
+	}
 
 	return  `<li data-id="${_id}" 
 				 data-parent="${data.parent}" 
