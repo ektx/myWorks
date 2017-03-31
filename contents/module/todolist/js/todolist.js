@@ -198,8 +198,6 @@ $(function() {
 					}
 				}
 
-				// if (!thisLi.dataset.parent) return;
-
 				for (let i = 0, l = data.rows.length; i < l; i++) {
 
 					if (data.rows[i].id > 100) {
