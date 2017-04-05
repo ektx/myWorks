@@ -311,7 +311,7 @@ $(function() {
 				updateTitleTime(date, YYMM.year, YYMM.month, YYMM.week)
 
 				// 更新列表
-				genToDoList(data.rows)
+				genToDoList(data.rows, $type.data() )
 
 			}, err => {
 				console.error(err)

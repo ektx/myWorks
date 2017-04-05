@@ -184,9 +184,8 @@ function updateTitleTime (title, year, month, week) {
 /*
 	生成当前分类事件清单
 	-------------------------------
-	@todoType [object] 当前分类
-		id
-		name
+	@data [Array] 事件清单
+	@todoType [Object] 当前分类
 */
 function genToDoList (data, todoType) {
 
