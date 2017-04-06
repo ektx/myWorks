@@ -247,7 +247,7 @@ function todoListLiTem (data, checked, todoType, nowType) {
 	if (todoType) {
 
 		// 如果当前类型和查询的一样
-		if (nowType.id != data.parent)
+		if (nowType.id != data.parent && data.parent)
 
 			descriptionMod = todoType[data.parent];
 	}
