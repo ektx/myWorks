@@ -275,7 +275,10 @@ $(function() {
 
 		}
 
+		// 生成新新日历
 		makeCalendar(y, m, d);
+		// 更新事件
+		setCalendarStatus()
 	})
 
 	/*

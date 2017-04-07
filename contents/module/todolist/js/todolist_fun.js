@@ -17,7 +17,12 @@ function renameType () {
 */
 function goToToday (id) {
 	let nowTime = new Date();
+	
+	// 生成日历
 	makeCalendar(nowTime.getFullYear(), nowTime.getMonth()+1, nowTime.getDate(), id);
+	// 更新日历事件
+	setCalendarStatus(id, null);
+
 }
 
 
@@ -78,7 +83,7 @@ function setCalendarStatus (id, month) {
 	let nowTypeID = id || $('.current','#todo-type-list').data().id;
 
 	if (!month) {
-		let calendardate = calendarTitleTime().timeStr.substring(0, 7);
+		month = calendarTitleTime().timeStr.substring(0, 7);
 	}
 
 	let query = `SELECT time FROM calendarDays WHERE time LIKE '${month}%'`;
