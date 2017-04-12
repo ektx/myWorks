@@ -91,12 +91,16 @@
 	line-height: 1.6em;
 	color: #fff;
 	border-radius: 100%;
+	transition: background-color .3s ease;
 }
 .calendar-body li.current span {
 	background-color: #333;
 }
 .calendar-body li.day span {
-	background-color: #f44336;
+	background-color: rgba(244, 67, 54, .5);
+}
+.calendar-body li.day.current span {
+	background-color: rgba(244, 67, 54, 1);
 }
 
 .calendar-control {
