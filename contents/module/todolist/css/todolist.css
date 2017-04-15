@@ -389,6 +389,9 @@
 	margin-top: -4px;
 	font-size: 10px;
 }
+.todo-list-box li .title-help-info span:not(:empty) {
+	margin-right: 10px;
+}
 .todo-list-box li .title:focus {
 	outline: none;
 }
