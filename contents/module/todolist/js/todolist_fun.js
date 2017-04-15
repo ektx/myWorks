@@ -198,7 +198,6 @@ function genToDoList (data, todoType) {
 		`SELECT * FROM todoType`,
 		[],
 		result => {
-
 			let liHTML = '';
 			let typeObj = {};
 
@@ -241,7 +240,7 @@ function genToDoList (data, todoType) {
 	-------------------------------
 */
 function todoListLiTem (data, checked, todoType, nowType) {
-	console.log(data, checked, todoType, nowType)
+
 	let _title = data.title || '';
 	let	_des = data.description || '';
 	let	_id = data.id || 'new';
