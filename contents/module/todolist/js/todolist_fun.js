@@ -134,7 +134,7 @@ function generateTodoType (key) {
 				
 				currentID = data[i].id;
 			}
-			ulInner += `<li ${_cur} data-id="${data[i].id}"><input value="${data[i].name}" readonly /></li>`
+			ulInner += `<li class="event-rows" ${_cur} data-id="${data[i].id}"><input value="${data[i].name}" readonly /></li>`
 		}
 
 		$('#todo-type-list').html( ulInner )
@@ -257,7 +257,8 @@ function todoListLiTem (data, checked, todoType, nowType) {
 			descriptionMod = todoType[data.parent];
 	}
 
-	return  `<li data-id="${_id}" 
+	return  `<li class="event-rows"
+				 data-id="${_id}" 
 				 data-parent="${data.parent}" 
 				 data-time="${data.remindTime}"
 			>
@@ -276,6 +277,26 @@ function todoListLiTem (data, checked, todoType, nowType) {
 					</span>
 				</div>
 				<ul class="inner">
+					<dl class="event-make-col">
+						<dt>开始:</dt>
+						<dd>
+							<ul class="date-select-ui">
+								<li class="year">2017</li>
+								<li class="month">4</li>
+								<li class="day">28</li>
+							</ul>
+						</dd>
+					</dl>
+					<dl class="event-make-col">
+						<dt>结束:</dt>
+						<dd>
+							<ul class="date-select-ui">
+								<li class="year">2017</li>
+								<li class="month">4</li>
+								<li class="day">28</li>
+							</ul>
+						</dd>
+					</dl>
 					<dl>
 						<dt>备注:</dt>
 						<dd>

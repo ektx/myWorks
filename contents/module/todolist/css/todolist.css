@@ -251,7 +251,7 @@
 .todo-list-box > ul {
 	height: 100%;
 }
-.todo-list-box li {
+.todo-list-box > li {
 	position: relative;
 }
 .todo-list-box li.hold {
@@ -410,4 +410,12 @@
 }
 #add-todo-event.clear-search {
 	transform: rotateZ(45deg);
+}
+
+.event-make-col dt,
+.event-make-col dd {
+	display: inline-block;
+}
+.event-make-col dd {
+	color: #333;
 }

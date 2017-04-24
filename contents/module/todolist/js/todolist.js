@@ -392,7 +392,7 @@ $(function() {
 		})
 		
 		// 添加状态
-		$(this).addClass('current').siblings().removeClass();
+		$(this).addClass('current').siblings().removeClass('current');
 
 		// 更新日历
 		// 将日历更新为当前月的日历
@@ -404,7 +404,7 @@ $(function() {
 			[id]
 		)
 
-	}).on('mouseover', 'li', function() {
+	}).on('mouseover', 'li.event-rows', function() {
 		$(this).addClass('ready').siblings().removeClass('ready')
 	})
 
@@ -676,7 +676,7 @@ $(function() {
 
 	})
 
-	.on('mouseover', 'li', function() {
+	.on('mouseover', 'li.event-rows', function() {
 		$(this).addClass('ready').siblings().removeClass('ready')
 	})
 
