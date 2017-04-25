@@ -323,7 +323,7 @@
 .todo-list-box .inner-box {
 	outline: none;
 	border: 0;
-	color: inherit;
+	color: #333;
 	font: inherit;
 	width: 100%;
 	resize: none;
