@@ -91,12 +91,16 @@
 	line-height: 1.6em;
 	color: #fff;
 	border-radius: 100%;
+	transition: background-color .3s ease;
 }
 .calendar-body li.current span {
 	background-color: #333;
 }
 .calendar-body li.day span {
-	background-color: #f44336;
+	background-color: rgba(244, 67, 54, .5);
+}
+.calendar-body li.day.current span {
+	background-color: rgba(244, 67, 54, 1);
 }
 
 .calendar-control {
@@ -329,12 +333,10 @@
 .todo-list-box li label {
 	display: flex;
 	width: 40px;
-	height: 38px;
+	height: 42px;
 	text-align: center;
-	/*margin-left: -40px;*/
 	justify-content: center;
     align-items: center;
-    /*background: #fff;*/
 }
 .todo-list-box .is-done {
 	-webkit-appearance: none;
@@ -380,10 +382,13 @@
 	background-color: transparent;
 }
 .todo-list-box li .title-help-info {
-	color: #888;
+	color: #a0a0a0;
 	padding-bottom: 5px;
-	margin-top: -4px;
+	margin-top: -6px;
 	font-size: 10px;
+}
+.todo-list-box li .title-help-info span:not(:empty) {
+	margin-right: 10px;
 }
 .todo-list-box li .title:focus {
 	outline: none;

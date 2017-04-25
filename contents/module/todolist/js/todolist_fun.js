@@ -198,7 +198,6 @@ function genToDoList (data, todoType) {
 		`SELECT * FROM todoType`,
 		[],
 		result => {
-
 			let liHTML = '';
 			let typeObj = {};
 
@@ -241,10 +240,12 @@ function genToDoList (data, todoType) {
 	-------------------------------
 */
 function todoListLiTem (data, checked, todoType, nowType) {
+
 	let _title = data.title || '';
 	let	_des = data.description || '';
 	let	_id = data.id || 'new';
-	let descriptionMod = '';
+	let todoTypeStr = '';
+	let writeTime = '';	// 创建日期
 
 	nowType = nowType || {};
 
@@ -252,9 +253,11 @@ function todoListLiTem (data, checked, todoType, nowType) {
 	if (todoType) {
 
 		// 如果当前类型和查询的一样
-		if (nowType.id != data.parent && data.parent)
+		if (nowType.id != data.parent) {
+			todoTypeStr = data.parent ? todoType[data.parent] : '';
+			writeTime = data.remindTime.substr(0, 10)
+		}
 
-			descriptionMod = todoType[data.parent];
 	}
 
 	return  `<li class="event-rows"
@@ -269,7 +272,8 @@ function todoListLiTem (data, checked, todoType, nowType) {
 					<div class="title-box">
 						<input class="title" value="${_title}" />
 						<p class="title-help-info">
-							<span class="et-thi-typeName">${descriptionMod}</span>
+							<span class="et-thi-typeName">${todoTypeStr}</span>
+							<span class="et-thi-writeTime">${writeTime}</span>
 						</p>
 					</div>
 					<span class="li-btns-box">
