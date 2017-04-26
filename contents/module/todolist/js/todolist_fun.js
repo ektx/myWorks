@@ -255,7 +255,7 @@ function todoListLiTem (data, checked, todoType, nowType) {
 		// 如果当前类型和查询的一样
 		if (nowType.id != data.parent) {
 			todoTypeStr = data.parent ? todoType[data.parent] : '';
-			writeTime = data.remindTime.substr(0, 10)
+			writeTime = data.startTime.substr(0, 10)
 		}
 
 	}
@@ -263,7 +263,7 @@ function todoListLiTem (data, checked, todoType, nowType) {
 	return  `<li class="event-rows"
 				 data-id="${_id}" 
 				 data-parent="${data.parent}" 
-				 data-time="${data.remindTime}"
+				 data-time="${data.startTime}"
 			>
 				<div class="header">
 					<label>
@@ -372,7 +372,7 @@ function saveMyToDoList (_this) {
 
 	webSQLInsert(
 		'todoEvent', 
-		'id, title, complete, description, parent, remindTime', 
+		'id, title, complete, description, parent, startTime', 
 		[id, title, isDone, remark, parent, reTime],
 		done,
 		err => {

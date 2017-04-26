@@ -28,16 +28,16 @@ $(function() {
 
 			webSQLCreateTable('todoType', 'id unique, name', done, fail);
 			webSQLCreateTable('calendarDays', 'time, sum, dayType', done, fail);
-			webSQLCreateTable('todoEvent', 'id unique, title, complete, description, parent, remindTime', done, fail)
+			webSQLCreateTable('todoEvent', 'id unique, title, complete, description, parent, remindTime, startTime, endTime', done, fail)
 			webSQLCreateTable('appInfo','dbversion, currentType', done, fail);
 
-			webSQLInsert('appInfo', 'dbversion, currentType', [1, 1])
+			webSQLInsert('appInfo', 'dbversion, currentType', [1, 2])
 			webSQLInsert('todoType', 'id, name', [1, '今天'])
 			webSQLInsert('todoType', 'id, name', [2, '计划'])
 
 			webSQLInsert('calendarDays', 'time, sum', ['2017-02-01', 1])
 
-			webSQLInsert('todoEvent', 'id, title, complete, description, remindTime', [1, 'Welcome Use MyWork', 0, 'This is a electron APP!', '2017-02-01 12:00:00'])
+			webSQLInsert('todoEvent', 'id, title, complete, description, startTime', [1, 'Welcome Use MyWork', 0, 'This is a electron APP!', '2017-02-01 12:00:00'])
 
 		}
 
@@ -304,7 +304,7 @@ $(function() {
 	
 			let YYMM = calendarTitleTime();
 			let queryTime = calendar.format('YYYY-MM-DD', `${YYMM.year}-${YYMM.month}-${date}`);
-			let query = `SELECT * FROM todoEvent WHERE date(remindTime)=date('${queryTime}')`;
+			let query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${queryTime}')`;
 
 			if (typeId > 100) {
 				query += ` AND parent in (${typeId})`;
@@ -356,7 +356,7 @@ $(function() {
 		// 当前 id
 		let	id = this.dataset.id;
 		// 默认查询条件
-		let	query = `SELECT * FROM todoEvent WHERE parent in (${id}) AND date(remindTime)=date('${findTime}') ORDER BY id DESC`;
+		let	query = `SELECT * FROM todoEvent WHERE parent in (${id}) AND date(startTime)=date('${findTime}') ORDER BY id DESC`;
 
 		if (id < 100) {
 			// 如果日历选择不是今天
@@ -374,7 +374,7 @@ $(function() {
 				$('#calendar-days').data().day = new Date().getDate();
 
 				// 重设查询条件
-				query = `SELECT * FROM todoEvent WHERE date(remindTime)=date('${_today}') ORDER BY id DESC`
+				query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${_today}') ORDER BY id DESC`
 			}
 		} else {
 			if (_today != _calendarTemp.timeStr && !_calendarTemp.hasSelect) {
@@ -482,7 +482,7 @@ $(function() {
 
 				switch (typeCur.data().id) {
 					case 1:
-						query = `SELECT * FROM todoEvent WHERE title like '%${this.value}%' AND date(remindTime)=data('${calendar.format('YYYY-MM-DD')}')`;
+						query = `SELECT * FROM todoEvent WHERE title like '%${this.value}%' AND date(startTime)=data('${calendar.format('YYYY-MM-DD')}')`;
 						break;
 
 					case 2:
