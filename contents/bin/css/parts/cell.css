@@ -91,13 +91,14 @@ form button {
 /* 时间选择功能 */
 .date-select-ui {
 	display: inline-block;
-	height: 24px;
 	font-size: 0;
 	box-sizing: border-box;
 	cursor: pointer;
+    border-bottom: 1px solid transparent;
 }
 .date-select-ui li {
 	font-size: 12px;
+	line-height: 22px;
 	display: inline-block;
 	margin-right: 8px;
 	transition: color .3s ease;
@@ -107,7 +108,7 @@ form button {
 }
 .date-select-ui li:after {
 	display: inline-block;
-	margin: 3px 0 0 3px;
+	margin: 0 0 0 3px;
 }
 .date-select-ui li.year:after {
 	content: '年';
@@ -120,5 +121,5 @@ form button {
 }
 .date-select-ui:hover {
 	color: #f65f54;
-    border-bottom: 1px solid #f65f54;
+    border-bottom-color: #f65f54;
 }

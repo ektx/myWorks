@@ -629,11 +629,13 @@ $(function() {
 			_inner = _.parents('.inner');
 
 		_.height(32);
+		_inner.height(32);
 
-		let _H = e.target.scrollHeight;
-			
+		let _H = _[0].scrollHeight;
 		_.height( _H );
-		_inner.removeClass('animate').height( _H + 29);
+
+		let _iH = _inner[0].scrollHeight;
+		_inner.removeClass('animate').height( _iH );
 
 	})
 	// 更新事件内容
