@@ -604,10 +604,10 @@ $(function() {
 			.parent().addClass(className)
 		}
 
-		// 优化在多信息展开详细时,收缩后当前提醒无法固定头部功能
-		setTimeout(function() {
-			_.parents('.todo-list-box').scroll()
-		}, 310)
+		// 隐藏时间与分类的信息
+		if ( header.find('.et-thi-writeTime').text().length > 0 ) {
+			header.find('.title-help-info').toggleClass('hide')
+		}
 	})
 	// 事件完成情况
 	.on('change', '.is-done', function() {

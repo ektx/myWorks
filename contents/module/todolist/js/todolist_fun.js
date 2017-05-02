@@ -246,7 +246,8 @@ function todoListLiTem (data, checked, todoType, nowType) {
 	let	_id = data.id || 'new';
 	let todoTypeStr = '';
 	let writeTime = '';	// 创建日期
-
+	let startTime = data.startTime || 0;
+// debugger
 	nowType = nowType || {};
 
 	// 如果存在列表集合
@@ -258,6 +259,11 @@ function todoListLiTem (data, checked, todoType, nowType) {
 			writeTime = data.startTime.substr(0, 10)
 		}
 
+	}
+
+	// 对开始时间处理
+	if ( startTime ) {
+		startTime = startTime.split(' ')[0].split('-');
 	}
 
 	return  `<li class="event-rows"
@@ -282,15 +288,24 @@ function todoListLiTem (data, checked, todoType, nowType) {
 				</div>
 				<ul class="inner">
 					<dl class="event-make-col">
+						<dt>列表:</dt>
+						<dd>
+							<span>${todoTypeStr || '无'}</span>
+						</dd>
+					</dl>
+					<dl class="event-make-col">
 						<dt>开始:</dt>
 						<dd>
 							<ul class="date-select-ui">
-								<li class="year">2017</li>
-								<li class="month">4</li>
-								<li class="day">28</li>
+								<li class="year">${startTime[0]}</li>
+								<li class="month">${startTime[1]}</li>
+								<li class="day">${startTime[2]}</li>
 							</ul>
+
+							<button class="et-make-btn add-end-time">添加结束时间</button>
 						</dd>
 					</dl>
+					<!--
 					<dl class="event-make-col">
 						<dt>结束:</dt>
 						<dd>
@@ -301,6 +316,7 @@ function todoListLiTem (data, checked, todoType, nowType) {
 							</ul>
 						</dd>
 					</dl>
+					-->
 					<dl>
 						<dt>备注:</dt>
 						<dd>
