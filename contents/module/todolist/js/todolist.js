@@ -718,7 +718,10 @@ $(function() {
 				parent = typeLi.data().id;
 			}
 
-			let html = todoListLiTem({parent: parent})
+			let html = todoListLiTem({
+				parent: parent,
+				startTime: calendarTitleTime().timeStr
+			})
 
 			$('.todo-list-box > ul').append(html).find('.title:last').focus();
 			

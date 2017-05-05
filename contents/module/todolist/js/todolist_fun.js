@@ -287,7 +287,7 @@ function todoListLiTem (data, checked, todoType, nowType) {
 
 		// 如果当前的列表和自己的分类是一样,那么就在当前列表
 		// 在当前列表不用显示自己有所属列表信息
-		if (nowType.id != data.parent) {
+		if (nowType.id && nowType.id != data.parent) {
 			result = `<dl class="event-make-col">
 				<dt>列表:</dt>
 				<dd>
@@ -366,16 +366,13 @@ function saveMyToDoList (_this) {
 	let remark = _this.find('.inner-box').val();
 	let parent = _this.data().parent || '',
 		id     = + new Date(),
-		calTime = calendarTitleTime(),
-		reTime  = '';
+		reTime  = _this.data().time;
 
 	typeId = typeId ? typeId.dataset.id : 0;
 
 	if ( parseInt(parent) < 100) {
 		parent = '';
 	}
-
-	reTime = calendar.format('YYYY-MM-DD',`${calTime.year}-${calTime.month}-${calTime.day}`);
 
 	// 没有写标题的不算~
 	if (!title) {
@@ -395,8 +392,6 @@ function saveMyToDoList (_this) {
 		});
 
 		_this.data().id = id;
-		_this.data().time = reTime;
-		_this.data().parent = parent;
 
 		// 在有时间提醒时 处理日历上事件效果
 		if (reTime) {
