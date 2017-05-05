@@ -247,7 +247,7 @@ function todoListLiTem (data, checked, todoType, nowType) {
 	let todoTypeStr = '';
 	let writeTime = '';	// 创建日期
 	let startTime = data.startTime || 0;
-// debugger
+
 	nowType = nowType || {};
 
 	// 如果存在列表集合
@@ -266,6 +266,39 @@ function todoListLiTem (data, checked, todoType, nowType) {
 		startTime = startTime.split(' ')[0].split('-');
 	}
 
+	// 获取帮助信息
+	let helpInfo = function() {
+		let result = '';
+
+		// 如果时间为空,那为我们不显示辅助信息
+		if (writeTime) {
+			result = `<p class="title-help-info">
+				<span class="et-thi-typeName">${todoTypeStr}</span>
+				<span class="et-thi-writeTime">${writeTime}</span>
+			</p>`;
+		}
+
+		return result;
+	}
+
+	// 获取更多里面的列表信息
+	let getMoreTypeInfo = function() {
+		let result = '';
+
+		// 如果当前的列表和自己的分类是一样,那么就在当前列表
+		// 在当前列表不用显示自己有所属列表信息
+		if (nowType.id != data.parent) {
+			result = `<dl class="event-make-col">
+				<dt>列表:</dt>
+				<dd>
+					<span>${todoTypeStr || '无'}</span>
+				</dd>
+			</dl>`;
+		}
+
+		return result;
+	}
+
 	return  `<li class="event-rows"
 				 data-id="${_id}" 
 				 data-parent="${data.parent}" 
@@ -277,22 +310,14 @@ function todoListLiTem (data, checked, todoType, nowType) {
 					</label>
 					<div class="title-box">
 						<input class="title" value="${_title}" />
-						<p class="title-help-info">
-							<span class="et-thi-typeName">${todoTypeStr}</span>
-							<span class="et-thi-writeTime">${writeTime}</span>
-						</p>
+						${helpInfo()}
 					</div>
 					<span class="li-btns-box">
 						<button class="tbtn arrow-ico down-arrow"></button>
 					</span>
 				</div>
 				<ul class="inner">
-					<dl class="event-make-col">
-						<dt>列表:</dt>
-						<dd>
-							<span>${todoTypeStr || '无'}</span>
-						</dd>
-					</dl>
+					${getMoreTypeInfo()}
 					<dl class="event-make-col">
 						<dt>开始:</dt>
 						<dd>
