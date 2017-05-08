@@ -63,7 +63,7 @@ function createWindow(options) {
 	mainWindow.loadURL(options.url);
 
 	// 默认开启调试工具
-	mainWindow.webContents.openDevTools();
+	// mainWindow.webContents.openDevTools();
 
 	mainWindow.on('close', (e)=> {
 		mainWindBounds = mainWindow.getBounds();
@@ -120,6 +120,11 @@ app.on('activate', () => {
 	}
 });
 
+// 打开控制台
+ipcMain.on('show-development-tool', (event, arg)=> {
+	console.log(`异步信息为: ${arg}`);
+	mainWindow.webContents.openDevTools();
+});
 
 // Mac OS dock
 // 提醒
