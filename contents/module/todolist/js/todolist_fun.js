@@ -19,7 +19,13 @@ function goToToday (id) {
 	let nowTime = new Date();
 	
 	// 生成日历
-	makeCalendar(nowTime.getFullYear(), nowTime.getMonth()+1, nowTime.getDate(), id);
+	makeCalendar({
+		year: nowTime.getFullYear(), 
+		month: nowTime.getMonth()+1, 
+		day: nowTime.getDate(),
+		id: id
+	});
+
 	// 更新日历事件
 	setCalendarStatus(id, null);
 
@@ -30,45 +36,49 @@ function goToToday (id) {
 	生成日历
 	@year [number] 年
 	@month [number] 月
-	@data [number] 天
+	@date [number] 天
 	@id 查询的类型
+	@el 日历的容器
 */
-function makeCalendar(year, month, date, id) {
+function makeCalendar(options) {
 
-	let generateTable = function(days) {
+	let year = options.year;
+	let month = options.month;
+	let date = options.day;
+	let id = options.id;
+	let ele = options.el || $('.calendar-days');
 
-		let dataArr = calendar.str(year, month),
-			calendarHTML = '';
+	let dataArr = calendar.str(year, month),
+		calendarHTML = '';
 
-		for (let i = 0; i < 42; i++ ) {
-			let _d = dataArr[i] || '',
-				calendarDayId = '',
-				_class = '';
+	for (let i = 0; i < 42; i++ ) {
+		let _d = dataArr[i] || '',
+			calendarDayId = '',
+			_class = '';
 
-			if (_d) calendarDayId = ' id="calDay-'+_d+'"';
+		if (_d) calendarDayId = ' id="calDay-'+_d+'"';
 
-			// 标记当天
-			if (_d == date) {
-				_class += 'day current ';
-			}
-
-			if (_class.length) {
-				_class = ' class="'+_class+'"';
-			}
-
-			calendarHTML += '<li' + calendarDayId + _class + '><span>'+ _d + '</span></li>';
+		// 标记当天
+		if (_d == date) {
+			_class += 'day current ';
 		}
 
-		$('#calendar-days').html(calendarHTML)
-		.data({
-			'year': year,
-			'month': month,
-			'day': date
-		})
-		.parent().prev().find('span').text(year+'年'+month+'月')
+		if (_class.length) {
+			_class = ' class="'+_class+'"';
+		}
+
+		calendarHTML += '<li' + calendarDayId + _class + '><span>'+ _d + '</span></li>';
 	}
 
-	generateTable(  )
+
+	ele.html(calendarHTML)
+	.data({
+		'year': year,
+		'month': month,
+		'day': date
+	})
+	.parent().prev().find('span').text(year+'年'+month+'月')
+
 }
 
 
@@ -423,7 +433,7 @@ function saveMyToDoList (_this) {
 */
 function calendarTitleTime () {
 
-	let calendarDays = $('#calendar-days');
+	let calendarDays = $('.calendar-days', '#events-calendar-mod');
 	let YYMM = calendarDays.data();
 	let year = YYMM.year;
 	let month= YYMM.month;

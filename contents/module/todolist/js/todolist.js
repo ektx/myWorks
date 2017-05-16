@@ -251,8 +251,9 @@ $(function() {
 
 	// 上下月切换日历
 	$('button', '.calendar-control').click(function() {
-	
-		let _ = $('#calendar-days').data();
+		
+		let _this = $(this).parents('.calendar-box').find('.calendar-days');
+		let _ = _this.data();
 		let y = _.year;
 		let m = _.month;
 		let d = _.day;
@@ -276,7 +277,12 @@ $(function() {
 		}
 
 		// 生成新新日历
-		makeCalendar(y, m, d);
+		makeCalendar({
+			year: y, 
+			month: m,
+			day: d,
+			el: _this
+		});
 		// 给日历添加状态
 		setCalendarStatus()
 	})
@@ -285,7 +291,7 @@ $(function() {
 		日历选择功能
 		---------------------------
 	*/
-	$('#calendar-days').on('click', 'li', function(){
+	$('.calendar-days').on('click', 'li', function(){
 		let _c = 'current';
 		let _  = $(this);
 		let date   = _.text();
@@ -296,7 +302,7 @@ $(function() {
 
 			_.addClass(_c).siblings().removeClass(_c)
 
-			.parent('#calendar-days').data('day', parseInt(date));
+			.parent('.calendar-days').data('day', parseInt(date));
 			
 			// 移除列表选择
 			if (typeId < 2)

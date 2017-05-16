@@ -122,6 +122,28 @@
 	-webkit-user-select: none;
 	user-select: none;
 }
+.calendar-btns {
+	padding: 3px 0 0;
+	font-size: 0;
+    border-top: 1px solid #ddd;
+}
+.calendar-btns button {
+    display: inline-block;
+    font-size: 12px;
+    color: #333;
+    width: 50%;
+    border: none;
+    outline: none;
+    line-height: 26px;
+    background: transparent;
+    cursor: pointer;
+	transition: background .3s ease, color .3s ease;
+}
+.calendar-btns button:hover {
+	background: #f5f5f5;
+	color: #f65f54;
+}
+
 
 .my-works-desktop {
 	display: flex;
@@ -462,7 +484,6 @@
     top: 130px;
     left: 100px;
     z-index: 400;
-    height: 200px;
     width: 230px;
     background: rgba(255, 255, 255, .9);
     backdrop-filter: blur(10px);
