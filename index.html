@@ -33,7 +33,7 @@
 					<ul id="todo-type-list"></ul>
 				</div>
 				
-				<div class="calendar-box">
+				<div class="calendar-box fixed-calendar-mod">
 					<header class="calendar-control">
 						<button id="prev" class="tbtn"><</button>
 						<span>2016年12月</span>
@@ -85,7 +85,30 @@
 			</div>
 		</div>
 			
-	</section>  
+	</section>
+	
+	<!-- 浮动时间组件 -->
+	<div id="fixed-date-mod" class="fixed-date-mod">
+		<div class="calendar-box">
+			<header class="calendar-control">
+				<button id="prev" class="tbtn"><</button>
+				<span>2016年12月</span>
+				<button id="next" class="tbtn">></button>
+			</header>
+			<div class="calendar-body">
+				<ul>
+					<li>日</li>
+					<li>一</li>
+					<li>二</li>
+					<li>三</li>
+					<li>四</li>
+					<li>五</li>
+					<li>六</li>
+				</ul>
+				<ul id="calendar-days"></ul>
+			</div>
+		</div>
+	</div>  
 
 
 	<script>
@@ -97,6 +120,7 @@
 	</script>
 
 	<script src="contents/lib/jQuery/jquery-3.1.0.min.js"></script>
+	<script src="contents/lib/Vue/vue.js"></script>
 	<script src="contents/bin/js/calendar.js"></script>
 	<script src="contents/bin/js/os.js"></script>
 	<script src="contents/bin/js/indexedDB.js"></script>

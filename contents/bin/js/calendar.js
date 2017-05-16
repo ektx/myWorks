@@ -10,8 +10,8 @@ const calendar = {
 		return Math.floor(day)
 	},
 
-	// 时间戳返回日期
 	/*
+		时间戳返回日期
 		calendar.reTimeStamp(1480557895172) // => Thu Dec 01 2016 02:04:55 GMT+0800 (CST)
 	*/
 	reTimeStamp: function(timeStamp) {
@@ -37,7 +37,7 @@ const calendar = {
 	},
 
 	weeks: function() {
-		return Math.floor(this.dayofyear() / 7)
+		return Math.ceil(this.dayofyear() / 7)
 	},
 
 	/*
