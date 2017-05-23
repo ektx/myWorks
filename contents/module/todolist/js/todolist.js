@@ -298,16 +298,8 @@ $(function() {
 		let $type  = $('.current','#todo-type-list');
 		let typeId = $type.length ? $type.data().id : null;
 
-		if (date) {
-
-			_.addClass(_c).siblings().removeClass(_c)
-
-			.parent('.calendar-days').data('day', parseInt(date));
+		let eventsCalendar = () => {
 			
-			// 移除列表选择
-			if (typeId < 2)
-				$type.removeClass();
-	
 			let YYMM = calendarTitleTime();
 			let queryTime = calendar.format('YYYY-MM-DD', `${YYMM.year}-${YYMM.month}-${date}`);
 			let query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${queryTime}')`;
@@ -325,6 +317,23 @@ $(function() {
 			}, err => {
 				console.error(err)
 			})
+		};
+
+		if (date) {
+
+			_.addClass(_c).siblings().removeClass(_c)
+
+			.parent('.calendar-days').data('day', parseInt(date));
+			
+			// 移除列表选择
+			if (typeId < 2)
+				$type.removeClass();
+
+			// 是日历选择功能
+			if ( _.parents('.calendar-box').is('#events-calendar-mod') ) {
+				eventsCalendar()
+			}
+	
 		}
 
 	});
@@ -733,6 +742,36 @@ $(function() {
 			
 		}
 	});
+
+
+	/*
+		日期选择功能
+	*/
+	$('.todo-list-box').on('click', '.date-select-ui', function(e) {
+		let thisPosition = this.getBoundingClientRect();
+		console.log();
+
+		$('#fixed-date-mod').css({
+			top: thisPosition.top + 22
+		}).show()
+
+	})
+
+	/*
+		日历时间选择于关闭
+	*/
+	$('#fixed-date-mod').find('.calendar-btns').children('button').click(function() {
+		let _ = $(this);
+		let _parentMod = _.parents('#fixed-date-mod');
+		let timeData = _parentMod.find('.calendar-days').data();
+		let index = _.index();
+
+		if (index) {
+			alert( timeData )
+		} else {
+			_parentMod.hide()
+		}
+	})
 
 });
 

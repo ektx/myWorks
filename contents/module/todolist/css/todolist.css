@@ -480,13 +480,21 @@
 
 /* 浮动时间组件 */
 .fixed-date-mod {
-    position: fixed;
-    top: 130px;
-    left: 100px;
+	display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 400;
-    width: 230px;
-    background: rgba(255, 255, 255, .9);
-    backdrop-filter: blur(10px);
-    border: 1px solid #ddd;
+}
+.fixed-date-inner {
+	position: absolute;
+	top: 0;
+	left: 40px;
+	width: 230px;
     border-radius: 2px;
+    border: 1px solid #ddd;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, .9);
 }
