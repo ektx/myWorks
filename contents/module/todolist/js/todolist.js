@@ -292,51 +292,60 @@ $(function() {
 		---------------------------
 	*/
 	$('.calendar-days').on('click', 'li', function(){
-		let _c = 'current';
 		let _  = $(this);
 		let date   = _.text();
 		let $type  = $('.current','#todo-type-list');
 		let typeId = $type.length ? $type.data().id : null;
 
-		let eventsCalendar = () => {
+		// let eventsCalendar = () => {
 			
-			let YYMM = calendarTitleTime();
-			let queryTime = calendar.format('YYYY-MM-DD', `${YYMM.year}-${YYMM.month}-${date}`);
-			let query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${queryTime}')`;
-
-			if (typeId > 100) {
-				query += ` AND parent in (${typeId})`;
-			}
-
-			webSQLCommon(query, [], data => {
-				updateTitleTime(date, YYMM.year, YYMM.month, YYMM.week)
-
-				// 更新列表
-				genToDoList(data.rows, $type.data() )
-
-			}, err => {
-				console.error(err)
-			})
-		};
+		// };
 
 		if (date) {
 
-			_.addClass(_c).siblings().removeClass(_c)
-
-			.parent('.calendar-days').data('day', parseInt(date));
+			calendarUpdateSelectDay(_, parseInt(date))
 			
 			// 移除列表选择
 			if (typeId < 2)
 				$type.removeClass();
 
 			// 是日历选择功能
-			if ( _.parents('.calendar-box').is('#events-calendar-mod') ) {
-				eventsCalendar()
-			}
+			// if ( _.parents('.calendar-box').is('#events-calendar-mod') ) {
+			// 	eventsCalendar()
+			// }
 	
 		}
 
 	});
+
+
+	/*
+		固定日历功能操作
+		-----------------------------
+	*/
+	$('#events-calendar-mod').find('.calendar-days').on('click', 'li', function() {
+
+		let _ = $(this);
+		let date = _.parent().data();
+		// let YYMM = calendarTitleTime();
+		let queryTime = calendar.format('YYYY-MM-DD', `${date.year}-${date.month}-${data.day}`);
+		let query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${queryTime}')`;
+
+		if (typeId > 100) {
+			query += ` AND parent in (${typeId})`;
+		}
+
+		webSQLCommon(query, [], data => {
+			updateTitleTime(date.day, YYMM.year, YYMM.month, YYMM.week)
+
+			// 更新列表
+			genToDoList(data.rows, $type.data() )
+
+		}, err => {
+			console.error(err)
+		})
+
+	})
 
 
 	/*

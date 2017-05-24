@@ -579,6 +579,22 @@ function setCalendarDayEvent(obj) {
 
 }
 
+/*
+	日历 日期选择功能
+	-------------------------------
+	日期的日期选中效果与事件回调处理
+	@ele [object] 选择的 DOM
+	@day [number] 具体天
+*/
+function calendarUpdateSelectDay (ele, day) {
+	let className = 'current';
+
+	ele.addClass( className )
+	.siblings().removeClass( className )
+	// 更新 data 中的 day
+	.parent('.calendarDays').data('day', day);
+}
+
 
 /*
 	导出功能
