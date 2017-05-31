@@ -758,25 +758,29 @@ $(function() {
 	*/
 	$('.todo-list-box').on('click', '.date-select-ui', function(e) {
 		let thisPosition = this.getBoundingClientRect();
-		console.log();
 
-		$('#fixed-date-mod').css({
+		$('#fixed-date-mod').show().children().css({
 			top: thisPosition.top + 22
-		}).show()
+		}).attr('data-id', $(this).closest('li').data().id )
 
 	})
 
 	/*
-		日历时间选择于关闭
+		日历时间选择
 	*/
 	$('#fixed-date-mod').find('.calendar-btns').children('button').click(function() {
 		let _ = $(this);
 		let _parentMod = _.parents('#fixed-date-mod');
 		let timeData = _parentMod.find('.calendar-days').data();
 		let index = _.index();
+		let id = _.closest('.fixed-date-inner').data().id;
 
 		if (index) {
-			alert( timeData )
+			alert( JSON.stringify( timeData ));
+
+			updateEventData(id, 'startTime', calendar.format('YYYY-MM-DD', `${timeData.year}/${timeData.month}/${timeData.day}` ), function(x) {
+				console.warn(x)
+			} )
 		} else {
 			_parentMod.hide()
 		}

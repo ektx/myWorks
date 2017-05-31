@@ -81,6 +81,9 @@ const calendar = {
 		calendar.format('YY-M-D h:m:s')
 		=> 17-2-1 8:9:5
 
+		calendar.format('YYYY-MM-DD', '2017/5/3')
+		=> 2017-05-03
+
 	*/
 	format: function(str, setTime) {
 

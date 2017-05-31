@@ -91,6 +91,7 @@ function makeCalendar(options) {
 function setCalendarStatus (id, month) {
 	
 	let nowTypeID = id || $('.current','#todo-type-list').data().id;
+	let eventClaendar = $('#events-calendar-mod').find('.calendar-days');
 
 	if (!month) {
 		month = calendarTitleTime().timeStr.substring(0, 7);
@@ -102,21 +103,20 @@ function setCalendarStatus (id, month) {
 		query += ` AND dayType IN (${nowTypeID})`;
 	}
 
-	$('#calendar-days').removeClass( );
+	eventClaendar.removeClass();
 
 	// 摘取此分类事件有日期的标识
 	webSQLCommon(
 		query, 
 		[], 
 		data => {
-			let dayArr = [];
+			let dayArr = ['calendar-days'];
 
 			for (let i = 0, l = data.rows.length; i < l; i++) {
 				dayArr.push( 'day-'+ parseInt(data.rows[i].time.substr(8)) )
 			}
 
-			if (dayArr.length) 
-				$('#calendar-days').addClass( dayArr.join(' ') );
+			eventClaendar.addClass( dayArr.join(' ') );
 				
 		}, 
 		err => {
@@ -433,7 +433,7 @@ function saveMyToDoList (_this) {
 */
 function calendarTitleTime () {
 
-	let calendarDays = $('.calendar-days', '#events-calendar-mod');
+	let calendarDays = $('#events-calendar-days');
 	let YYMM = calendarDays.data();
 	let year = YYMM.year;
 	let month= YYMM.month;
@@ -826,7 +826,14 @@ function moveToOtherType (liDataset, toSaveParent, toSaveName, callback) {
 
 }
 
+/*
+	更新事件
+	------------------------------
+*/
+function updateEventData(eventId, key, value, callback) {
 
+	if (callback) callback(arguments);
+}
 
 
 
