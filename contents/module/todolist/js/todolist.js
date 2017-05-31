@@ -327,16 +327,19 @@ $(function() {
 
 		let _ = $(this);
 		let date = _.parent().data();
+		let _day = parseInt(this.id.match(/\d+$/)[0]);
 		// let YYMM = calendarTitleTime();
-		let queryTime = calendar.format('YYYY-MM-DD', `${date.year}-${date.month}-${data.day}`);
+		let queryTime = calendar.format('YYYY-MM-DD', `${date.year}-${date.month}-${_day}`);
 		let query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${queryTime}')`;
+		let $type  = $('.current','#todo-type-list');
+		let typeId = $type.length ? $type.data().id : null;
 
 		if (typeId > 100) {
 			query += ` AND parent in (${typeId})`;
 		}
 
 		webSQLCommon(query, [], data => {
-			updateTitleTime(date.day, YYMM.year, YYMM.month, YYMM.week)
+			updateTitleTime(_day, date.year, date.month, calendar.week(queryTime))
 
 			// 更新列表
 			genToDoList(data.rows, $type.data() )
