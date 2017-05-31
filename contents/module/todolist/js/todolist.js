@@ -327,14 +327,18 @@ $(function() {
 
 		let _ = $(this);
 		let date = _.parent().data();
-		let _day = parseInt(this.id.match(/\d+$/)[0]);
+		let _day = this.id.match(/\d+$/);
 		// let YYMM = calendarTitleTime();
 		let queryTime = calendar.format('YYYY-MM-DD', `${date.year}-${date.month}-${_day}`);
 		let query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${queryTime}')`;
 		let $type  = $('.current','#todo-type-list');
 		let typeId = $type.length ? $type.data().id : null;
 
-		if (typeId > 100) {
+		if (!_day) return;
+		
+		_day = parseInt(_day[0]);
+
+		if (localStorage.EVENT_TYPE_ID > 100) {
 			query += ` AND parent in (${typeId})`;
 		}
 
