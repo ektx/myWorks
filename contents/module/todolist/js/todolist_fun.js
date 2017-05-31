@@ -489,7 +489,7 @@ function setCalendarDayEvent(obj) {
 	let addRemind = () => {
 
 		let setDayClass = 'day-'+parseInt(time.substr(8));
-		let calendarUl  = document.getElementById('calendar-days');
+		let calendarUl  = document.getElementById('events-calendar-days');
 		let currentType = document.getElementById('todo-type-list').querySelector('.current').dataset.id;
 
 		if (!calendarUl.matches('.'+setDayClass) && type === 'add' && currentType == parent) {

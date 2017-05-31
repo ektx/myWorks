@@ -338,6 +338,12 @@ $(function() {
 			query += ` AND parent in (${typeId})`;
 		}
 
+		// 保存到 localStorage 中
+		localStorage.EVENT_CALENDAR_YEAR = date.year;
+		localStorage.EVENT_CALENDAR_MONTH = date.month;
+		localStorage.EVENT_CALENDAR_DAY = _day;
+		localStorage.EVENT_CALENDAR_WEEK = calendar.week(queryTime);
+
 		webSQLCommon(query, [], data => {
 			updateTitleTime(_day, date.year, date.month, calendar.week(queryTime))
 
@@ -430,6 +436,9 @@ $(function() {
 			`UPDATE appInfo SET currentType=?`,
 			[id]
 		)
+
+		// 保存到 localStorage
+		localStorage.EVENT_TYPE_ID = id;
 
 	}).on('mouseover', 'li.event-rows', function() {
 		$(this).addClass('ready').siblings().removeClass('ready')
