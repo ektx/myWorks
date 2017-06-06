@@ -37,7 +37,13 @@ $(function() {
 
 			webSQLInsert('calendarDays', 'time, sum', ['2017-02-01', 1])
 
-			webSQLInsert('todoEvent', 'id, title, complete, description, startTime', [1, 'Welcome Use MyWork', 0, 'This is a electron APP!', '2017-02-01 12:00:00'])
+			webSQLInsert('todoEvent', 'id, title, complete, description, startTime', [1, 'Welcome Use MyWork', 0, 'This is a electron APP!', '2017-02-01 12:00:00']);
+
+			// 添加基础 localStorage
+			let nowDate = new Date();
+			localStorage.EVENT_CALENDAR_YEAR = nowDate.getFullYear();
+			localStorage.EVENT_CALENDAR_MONTH = nowDate.getMonth()+1;
+			localStorage.EVENT_CALENDAR_DAY = nowDate.getDate();
 
 		}
 
@@ -404,7 +410,7 @@ $(function() {
 			} 
 			// 选择今天时
 			else if (id == 1) {
-				$('#calendar-days').data().day = new Date().getDate();
+				$('#events-calendar-days').data().day = new Date().getDate();
 
 				// 重设查询条件
 				query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${_today}') ORDER BY id DESC`
