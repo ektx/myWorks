@@ -369,16 +369,14 @@ function todoListLiTem (data, checked, todoType, nowType) {
 */
 function saveMyToDoList (_this) {
 
-	let typeId = document.getElementById('todo-type-list').getElementsByClassName('current').item(0);
+	let typeId = localStorage.EVENT_TYPE_ID;
 	let _title = _this.find('.title');
 	let title  = _title.val();
 	let isDone = 0;
 	let remark = _this.find('.inner-box').val();
 	let parent = _this.data().parent || '',
 		id     = + new Date(),
-		reTime  = _this.data().time;
-
-	typeId = typeId ? typeId.dataset.id : 0;
+		reTime  = calendar.format('YYYY-MM-DD', `${localStorage.EVENT_CALENDAR_YEAR}-${localStorage.EVENT_CALENDAR_MONTH}-${localStorage.EVENT_CALENDAR_DAY}`);
 
 	if ( parseInt(parent) < 100) {
 		parent = '';
@@ -467,9 +465,16 @@ function calendarTitleTime () {
 
 /*
 	更新或添加日历索引
+	--------------------------------------------
 	@type    add | del
 	@time    日历事件时间  eg: 2017-04-01
 	@parent  类别
+
+	setCalendarDayEvent({
+		type: 'del', 
+		time: liData.time,
+		parent: liData.parent
+	})
 */
 function setCalendarDayEvent(obj) {
 
@@ -478,7 +483,7 @@ function setCalendarDayEvent(obj) {
 	let parent = obj.parent;
 
 	let done = data => {
-		console.log(data)
+		// console.log(data)
 	};
 
 	let fail = err => {
@@ -577,22 +582,6 @@ function setCalendarDayEvent(obj) {
 		fail
 	)
 
-}
-
-/*
-	日历 日期选择功能
-	-------------------------------
-	日期的日期选中效果与事件回调处理
-	@ele [object] 选择的 DOM
-	@day [number] 具体天
-*/
-function calendarUpdateSelectDay (ele, day) {
-	let className = 'current';
-
-	ele.addClass( className )
-	.siblings().removeClass( className )
-	// 更新 data 中的 day
-	.parent('.calendarDays').data('day', day);
 }
 
 
@@ -827,12 +816,44 @@ function moveToOtherType (liDataset, toSaveParent, toSaveName, callback) {
 }
 
 /*
-	更新事件
+	更新事件上的日期
 	------------------------------
 */
-function updateEventData(eventId, key, value, callback) {
+function updateEventData(parentId, eventId, key, oldTime, newTime, callback) {
 
-	if (callback) callback(arguments);
+	async.parallel([
+		callback => {
+			// 更新时间
+			webSQLCommon(
+				`UPDATE todoEvent SET ${key} = ? WHERE id = ?`,
+				[newTime, eventId],
+				done => callback(null, done)
+			)
+		},
+		callback => {
+			// 删除之前日历索引
+			setCalendarDayEvent({
+				type: 'del', 
+				time: oldTime,
+				parent: parseInt(parentId)
+			});
+			callback(null)
+
+		},
+		callback => {
+			// 添加新的日期索引
+			setCalendarDayEvent({
+				type: 'add', 
+				time: newTime, 
+				parent: parseInt(parentId)
+			})
+			callback(null)
+		}
+	], (err, result) => {
+		if (err) return console.log(err);
+
+		if (callback) callback(result);
+	})
 }
 
 

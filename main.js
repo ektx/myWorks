@@ -87,9 +87,9 @@ app.on('ready', ()=>{
 	// const appIcon = new Tray('contents/bin/img/usr/kings.png');
 
 	createWindow({
-		w: 800,
+		w: 900,
 		mw: 400,
-		h: 600,
+		h: 620,
 		mh: 400,
 		frame: true,
 		titleBarStyle: 'hidden',
