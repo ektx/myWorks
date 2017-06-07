@@ -804,7 +804,7 @@ $(function() {
 		let newTimeData = _parentMod.find('.calendar-days').data();
 		let index = _.index(); // 点击的按钮索引
 		let oldTimeDate = innerBox.data().time;
-		let parent = innerBox.data().parent;
+		let parent = innerBox[0].dataset.parent;
 		let _li = innerBox.data().li;
 		let newTimeDate = calendar.format('YYYY-MM-DD', `${newTimeData.year}/${newTimeData.month}/${newTimeData.day}`);
 
