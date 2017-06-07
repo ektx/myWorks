@@ -482,6 +482,11 @@ function setCalendarDayEvent(obj) {
 	let time = obj.time;
 	let parent = obj.parent;
 
+	if (isNaN(parent)) {
+		console.warning(`parent 不是数字,无法取得父级内容! -> setCalendarDayEvent`);
+		return;
+	}
+
 	let done = data => {
 		// console.log(data)
 	};
@@ -856,8 +861,21 @@ function updateEventData(parentId, eventId, key, oldTime, newTime, callback) {
 	})
 }
 
+/*
+	更新事件选择的日期修改功能
+	------------------------------------------
+	@timeArr 时间数组,内容格式:[year, month, day] 
+	@ele 更新的 ul
+*/
+function updateEventSelectTime(ele, timeArr) {
+	ele.find('li', '.date-select-ui').each(function(i, n) {
+		let txt = this.innerText;
 
-
+		if (txt != timeArr[i]) {
+			this.innerText = timeArr[i]
+		}
+	})
+}
 
 
 

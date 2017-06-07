@@ -816,9 +816,12 @@ $(function() {
 		// 点击了确认时
 		if (index) {
 
-			updateEventData(parent, _li, 'startTime', oldTimeDate, newTimeDate, function(x) {
-				$(`[data-id="${_li}"]`).hide(400)
-				console.warn(x)
+			updateEventData(parent, _li, 'startTime', oldTimeDate, newTimeDate, () => {
+				if (localStorage.EVENT_TYPE_ID > 100)
+					$(`[data-id="${_li}"]`).hide(400)
+				else {
+					updateEventSelectTime($(`[data-id="${_li}"]`), newTimeDate.split('-') )
+				}
 			} )
 		}
 
