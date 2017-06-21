@@ -281,14 +281,16 @@ function todoListLiTem (data, checked, todoType, nowType) {
 		let result = '';
 
 		// 如果时间为空,那为我们不显示辅助信息
-		if (writeTime) {
-			result = `<p class="title-help-info">
+		// if (writeTime) {
+			result = `<p class="title-help-info ${localStorage.EVENT_TYPE_ID <= 2?'':'hide'}">
 				<span class="et-thi-typeName">${todoTypeStr}</span>
-				<span class="et-thi-writeTime">${writeTime}</span>
-			</p>`;
-		}
+				`;
+		// }
 
-		return result;
+		if (localStorage.EVENT_TYPE_ID != 1)
+			result += `<span class="et-thi-writeTime">${writeTime}</span>`
+
+		return result + '</p>';
 	}
 
 	// 获取更多里面的列表信息
@@ -795,11 +797,13 @@ function moveToOtherType (liDataset, toSaveParent, toSaveName, callback) {
 			);
 		},
 		callback => {
-			setCalendarDayEvent({
-				type: 'del',
-				time: liDataset.time,
-				parent: parseInt(liDataset.parent)
-			})
+			if (liDataset.parentId) {
+				setCalendarDayEvent({
+					type: 'del',
+					time: liDataset.time,
+					parent: parseInt(liDataset.parent)
+				})
+			}
 			callback(null)
 		},
 		callback => {
