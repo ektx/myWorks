@@ -10,8 +10,8 @@ const calendar = {
 		return Math.floor(day)
 	},
 
-	// 时间戳返回日期
 	/*
+		时间戳返回日期
 		calendar.reTimeStamp(1480557895172) // => Thu Dec 01 2016 02:04:55 GMT+0800 (CST)
 	*/
 	reTimeStamp: function(timeStamp) {
@@ -37,7 +37,7 @@ const calendar = {
 	},
 
 	weeks: function() {
-		return Math.floor(this.dayofyear() / 7)
+		return Math.ceil(this.dayofyear() / 7)
 	},
 
 	/*
@@ -80,6 +80,9 @@ const calendar = {
 
 		calendar.format('YY-M-D h:m:s')
 		=> 17-2-1 8:9:5
+
+		calendar.format('YYYY-MM-DD', '2017/5/3')
+		=> 2017-05-03
 
 	*/
 	format: function(str, setTime) {

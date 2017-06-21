@@ -28,16 +28,22 @@ $(function() {
 
 			webSQLCreateTable('todoType', 'id unique, name', done, fail);
 			webSQLCreateTable('calendarDays', 'time, sum, dayType', done, fail);
-			webSQLCreateTable('todoEvent', 'id unique, title, complete, description, parent, remindTime', done, fail)
+			webSQLCreateTable('todoEvent', 'id unique, title, complete, description, parent, remindTime, startTime, endTime', done, fail)
 			webSQLCreateTable('appInfo','dbversion, currentType', done, fail);
 
-			webSQLInsert('appInfo', 'dbversion, currentType', [1, 1])
+			webSQLInsert('appInfo', 'dbversion, currentType', [1, 2])
 			webSQLInsert('todoType', 'id, name', [1, '今天'])
 			webSQLInsert('todoType', 'id, name', [2, '计划'])
 
 			webSQLInsert('calendarDays', 'time, sum', ['2017-02-01', 1])
 
-			webSQLInsert('todoEvent', 'id, title, complete, description, remindTime', [1, 'Welcome Use MyWork', 0, 'This is a electron APP!', '2017-02-01 12:00:00'])
+			webSQLInsert('todoEvent', 'id, title, complete, description, startTime', [1, 'Welcome Use MyWork', 0, 'This is a electron APP!', '2017-02-01 12:00:00']);
+
+			// 添加基础 localStorage
+			let nowDate = new Date();
+			localStorage.EVENT_CALENDAR_YEAR = nowDate.getFullYear();
+			localStorage.EVENT_CALENDAR_MONTH = nowDate.getMonth()+1;
+			localStorage.EVENT_CALENDAR_DAY = nowDate.getDate();
 
 		}
 
@@ -251,8 +257,9 @@ $(function() {
 
 	// 上下月切换日历
 	$('button', '.calendar-control').click(function() {
-	
-		let _ = $('#calendar-days').data();
+		
+		let _this = $(this).parents('.calendar-box').find('.calendar-days');
+		let _ = _this.data();
 		let y = _.year;
 		let m = _.month;
 		let d = _.day;
@@ -276,8 +283,13 @@ $(function() {
 		}
 
 		// 生成新新日历
-		makeCalendar(y, m, d);
-		// 更新事件
+		makeCalendar({
+			year: y, 
+			month: m,
+			day: d,
+			el: _this
+		});
+		// 给日历添加状态
 		setCalendarStatus()
 	})
 
@@ -285,43 +297,70 @@ $(function() {
 		日历选择功能
 		---------------------------
 	*/
-	$('#calendar-days').on('click', 'li', function(){
-		let _c = 'current';
+	$('.calendar-days').on('click', 'li', function(){
 		let _  = $(this);
 		let date   = _.text();
-		let $type  = $('.current','#todo-type-list');
-		let typeId = $type.length ? $type.data().id : null;
+		let $type  = _.parent().find('.current');
+		let typeId = localStorage.EVENT_TYPE_ID;
 
 		if (date) {
 
-			_.addClass(_c).siblings().removeClass(_c)
+			let className = 'current';
 
-			.parent('#calendar-days').data('day', parseInt(date));
+			_.addClass( className )
+			.siblings().removeClass( className ).end()
+			// 更新 data 中的 day
+			.parent().data('day', date);
+
 			
 			// 移除列表选择
 			if (typeId < 2)
-				$type.removeClass();
+				$(`[data-id="${typeId}"]`).removeClass();
 	
-			let YYMM = calendarTitleTime();
-			let queryTime = calendar.format('YYYY-MM-DD', `${YYMM.year}-${YYMM.month}-${date}`);
-			let query = `SELECT * FROM todoEvent WHERE date(remindTime)=date('${queryTime}')`;
-
-			if (typeId > 100) {
-				query += ` AND parent in (${typeId})`;
-			}
-
-			webSQLCommon(query, [], data => {
-				updateTitleTime(date, YYMM.year, YYMM.month, YYMM.week)
-
-				// 更新列表
-				genToDoList(data.rows, $type.data() )
-
-			}, err => {
-				console.error(err)
-			})
 		}
 
 	});
+
+
+	/*
+		固定日历功能操作
+		-----------------------------
+	*/
+	$('#events-calendar-mod').find('.calendar-days').on('click', 'li', function() {
+
+		let _ = $(this);
+		let date = _.parent().data();
+		let _day = this.id.match(/\d+$/);
+		let queryTime = calendar.format('YYYY-MM-DD', `${date.year}-${date.month}-${_day}`);
+		let query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${queryTime}')`;
+		let $type  = $('.current','#todo-type-list');
+		let typeId = $type.length ? $type.data().id : null;
+
+		if (!_day) return;
+		
+		_day = parseInt(_day[0]);
+
+		if (localStorage.EVENT_TYPE_ID > 100) {
+			query += ` AND parent in (${typeId})`;
+		}
+
+		// 保存到 localStorage 中
+		localStorage.EVENT_CALENDAR_YEAR = date.year;
+		localStorage.EVENT_CALENDAR_MONTH = date.month;
+		localStorage.EVENT_CALENDAR_DAY = _day;
+		localStorage.EVENT_CALENDAR_WEEK = calendar.week(queryTime);
+
+		webSQLCommon(query, [], data => {
+			updateTitleTime(_day, date.year, date.month, calendar.week(queryTime))
+
+			// 更新列表
+			genToDoList(data.rows, $type.data() )
+
+		}, err => {
+			console.error(err)
+		})
+
+	})
 
 
 	/*
@@ -356,7 +395,7 @@ $(function() {
 		// 当前 id
 		let	id = this.dataset.id;
 		// 默认查询条件
-		let	query = `SELECT * FROM todoEvent WHERE parent in (${id}) AND date(remindTime)=date('${findTime}') ORDER BY id DESC`;
+		let	query = `SELECT * FROM todoEvent WHERE parent in (${id}) AND date(startTime)=date('${findTime}') ORDER BY id DESC`;
 
 		if (id < 100) {
 			// 如果日历选择不是今天
@@ -371,10 +410,10 @@ $(function() {
 			} 
 			// 选择今天时
 			else if (id == 1) {
-				$('#calendar-days').data().day = new Date().getDate();
+				$('#events-calendar-days').data().day = new Date().getDate();
 
 				// 重设查询条件
-				query = `SELECT * FROM todoEvent WHERE date(remindTime)=date('${_today}') ORDER BY id DESC`
+				query = `SELECT * FROM todoEvent WHERE date(startTime)=date('${_today}') ORDER BY id DESC`
 			}
 		} else {
 			if (_today != _calendarTemp.timeStr && !_calendarTemp.hasSelect) {
@@ -392,7 +431,7 @@ $(function() {
 		})
 		
 		// 添加状态
-		$(this).addClass('current').siblings().removeClass();
+		$(this).addClass('current').siblings().removeClass('current');
 
 		// 更新日历
 		// 将日历更新为当前月的日历
@@ -404,7 +443,10 @@ $(function() {
 			[id]
 		)
 
-	}).on('mouseover', 'li', function() {
+		// 保存到 localStorage
+		localStorage.EVENT_TYPE_ID = id;
+
+	}).on('mouseover', 'li.event-rows', function() {
 		$(this).addClass('ready').siblings().removeClass('ready')
 	})
 
@@ -482,7 +524,7 @@ $(function() {
 
 				switch (typeCur.data().id) {
 					case 1:
-						query = `SELECT * FROM todoEvent WHERE title like '%${this.value}%' AND date(remindTime)=data('${calendar.format('YYYY-MM-DD')}')`;
+						query = `SELECT * FROM todoEvent WHERE title like '%${this.value}%' AND date(startTime)=data('${calendar.format('YYYY-MM-DD')}')`;
 						break;
 
 					case 2:
@@ -604,10 +646,10 @@ $(function() {
 			.parent().addClass(className)
 		}
 
-		// 优化在多信息展开详细时,收缩后当前提醒无法固定头部功能
-		setTimeout(function() {
-			_.parents('.todo-list-box').scroll()
-		}, 310)
+		// 隐藏时间与分类的信息
+		if ( header.find('.et-thi-writeTime').text().length > 0 ) {
+			header.find('.title-help-info').toggleClass('hide')
+		}
 	})
 	// 事件完成情况
 	.on('change', '.is-done', function() {
@@ -629,11 +671,13 @@ $(function() {
 			_inner = _.parents('.inner');
 
 		_.height(32);
+		_inner.height(32);
 
-		let _H = e.target.scrollHeight;
-			
+		let _H = _[0].scrollHeight;
 		_.height( _H );
-		_inner.removeClass('animate').height( _H + 29);
+
+		let _iH = _inner[0].scrollHeight;
+		_inner.removeClass('animate').height( _iH );
 
 	})
 	// 更新事件内容
@@ -676,7 +720,7 @@ $(function() {
 
 	})
 
-	.on('mouseover', 'li', function() {
+	.on('mouseover', 'li.event-rows', function() {
 		$(this).addClass('ready').siblings().removeClass('ready')
 	})
 
@@ -716,12 +760,73 @@ $(function() {
 				parent = typeLi.data().id;
 			}
 
-			let html = todoListLiTem({parent: parent})
+			let html = todoListLiTem({
+				parent: parent,
+				startTime: calendarTitleTime().timeStr
+			})
 
 			$('.todo-list-box > ul').append(html).find('.title:last').focus();
 			
 		}
 	});
+
+
+	/*
+		修改事件的时间弹层功能
+		-------------------------------------
+	*/
+	$('.todo-list-box').on('click', '.date-select-ui', function(e) {
+		let thisPosition = this.getBoundingClientRect();
+		let year = this.querySelector('.year').innerText;
+		let month = this.querySelector('.month').innerText;
+		let day = this.querySelector('.day').innerText;
+		let liData = $(this).closest('li').data();
+
+		$('#fixed-date-mod').show().children().css({
+			top: thisPosition.top + 22
+		}).attr({
+			'data-parent': liData.parent,
+			'data-time': `${year}-${month}-${day}`,
+			'data-li': liData.id
+		})
+
+	})
+
+	/*
+		修改事件的时间功能
+		------------------------------------
+	*/
+	$('#fixed-date-mod').find('.calendar-btns').children('button').click(function() {
+		
+		let _ = $(this);
+		let _parentMod = _.parents('#fixed-date-mod');
+		let innerBox = _parentMod.find('.fixed-date-inner');
+		let newTimeData = _parentMod.find('.calendar-days').data();
+		let index = _.index(); // 点击的按钮索引
+		let oldTimeDate = innerBox.data().time;
+		let parent = innerBox[0].dataset.parent;
+		let _li = innerBox.data().li;
+		let newTimeDate = calendar.format('YYYY-MM-DD', `${newTimeData.year}/${newTimeData.month}/${newTimeData.day}`);
+
+		if (newTimeDate == oldTimeDate) {
+			alert('您没有修改时间!');
+			return;
+		}
+
+		// 点击了确认时
+		if (index) {
+
+			updateEventData(parent, _li, 'startTime', oldTimeDate, newTimeDate, () => {
+				if (localStorage.EVENT_TYPE_ID > 100)
+					$(`[data-id="${_li}"]`).hide(400)
+				else {
+					updateEventSelectTime($(`[data-id="${_li}"]`), newTimeDate.split('-') )
+				}
+			} )
+		}
+
+		_parentMod.hide()
+	})
 
 });
 

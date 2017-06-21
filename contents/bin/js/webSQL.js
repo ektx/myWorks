@@ -1,3 +1,9 @@
+/*
+	web sql
+	---------------------------------
+	@v0.0.1
+	@zwl
+*/
 
 let WEBSQL_CONNECT = '';
 
@@ -12,7 +18,7 @@ let WEBSQL_CONNECT = '';
 function webSQLOpenDB(name, version, description, size, callback) {
 	WEBSQL_CONNECT = openDatabase(name, version, description, size * 1024 * 1024);
 
-	callback(WEBSQL_CONNECT)
+	if (callback) callback(WEBSQL_CONNECT)
 }
 
 /*
@@ -46,6 +52,8 @@ function webSQLDropTable(name, doneCallback, failCallback) {
 
 /*
 	添加数据
+	-----------------------------------------
+	@values [array] eg: [1,'hello world']
 */
 function webSQLInsert (table, key, values, doneCallback, failCallback) {
 	if (!(values instanceof Array && values.length > 0)) {
@@ -68,6 +76,8 @@ function webSQLInsert (table, key, values, doneCallback, failCallback) {
 
 /*
 	通用功能
+	--------------------------------------------
+	@values [array] eg: []
 */
 function webSQLCommon (query, values, doneCallback, failCallback) {
 	WEBSQL_CONNECT.transaction( tx => {

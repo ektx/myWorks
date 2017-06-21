@@ -110,6 +110,18 @@ const template = [
 		]
 	},
 	{
+		role: 'development',
+		label: '开发者',
+		submenu: [
+			{
+				label: '控制台',
+				click() {
+					ipcRenderer.send('show-development-tool', true)
+				}
+			}
+		]
+	},
+	{
 		role: 'help',
 		label: '帮助',
 		submenu: [

@@ -19,7 +19,13 @@ function goToToday (id) {
 	let nowTime = new Date();
 	
 	// 生成日历
-	makeCalendar(nowTime.getFullYear(), nowTime.getMonth()+1, nowTime.getDate(), id);
+	makeCalendar({
+		year: nowTime.getFullYear(), 
+		month: nowTime.getMonth()+1, 
+		day: nowTime.getDate(),
+		id: id
+	});
+
 	// 更新日历事件
 	setCalendarStatus(id, null);
 
@@ -30,45 +36,49 @@ function goToToday (id) {
 	生成日历
 	@year [number] 年
 	@month [number] 月
-	@data [number] 天
+	@date [number] 天
 	@id 查询的类型
+	@el 日历的容器
 */
-function makeCalendar(year, month, date, id) {
+function makeCalendar(options) {
 
-	let generateTable = function(days) {
+	let year = options.year;
+	let month = options.month;
+	let date = options.day;
+	let id = options.id;
+	let ele = options.el || $('.calendar-days');
 
-		let dataArr = calendar.str(year, month),
-			calendarHTML = '';
+	let dataArr = calendar.str(year, month),
+		calendarHTML = '';
 
-		for (let i = 0; i < 42; i++ ) {
-			let _d = dataArr[i] || '',
-				calendarDayId = '',
-				_class = '';
+	for (let i = 0; i < 42; i++ ) {
+		let _d = dataArr[i] || '',
+			calendarDayId = '',
+			_class = '';
 
-			if (_d) calendarDayId = ' id="calDay-'+_d+'"';
+		if (_d) calendarDayId = ' id="calDay-'+_d+'"';
 
-			// 标记当天
-			if (_d == date) {
-				_class += 'day current ';
-			}
-
-			if (_class.length) {
-				_class = ' class="'+_class+'"';
-			}
-
-			calendarHTML += '<li' + calendarDayId + _class + '><span>'+ _d + '</span></li>';
+		// 标记当天
+		if (_d == date) {
+			_class += 'day current ';
 		}
 
-		$('#calendar-days').html(calendarHTML)
-		.data({
-			'year': year,
-			'month': month,
-			'day': date
-		})
-		.parent().prev().find('span').text(year+'年'+month+'月')
+		if (_class.length) {
+			_class = ' class="'+_class+'"';
+		}
+
+		calendarHTML += '<li' + calendarDayId + _class + '><span>'+ _d + '</span></li>';
 	}
 
-	generateTable(  )
+
+	ele.html(calendarHTML)
+	.data({
+		'year': year,
+		'month': month,
+		'day': date
+	})
+	.parent().prev().find('span').text(year+'年'+month+'月')
+
 }
 
 
@@ -81,6 +91,7 @@ function makeCalendar(year, month, date, id) {
 function setCalendarStatus (id, month) {
 	
 	let nowTypeID = id || $('.current','#todo-type-list').data().id;
+	let eventClaendar = $('#events-calendar-mod').find('.calendar-days');
 
 	if (!month) {
 		month = calendarTitleTime().timeStr.substring(0, 7);
@@ -92,21 +103,20 @@ function setCalendarStatus (id, month) {
 		query += ` AND dayType IN (${nowTypeID})`;
 	}
 
-	$('#calendar-days').removeClass( );
+	eventClaendar.removeClass();
 
 	// 摘取此分类事件有日期的标识
 	webSQLCommon(
 		query, 
 		[], 
 		data => {
-			let dayArr = [];
+			let dayArr = ['calendar-days'];
 
 			for (let i = 0, l = data.rows.length; i < l; i++) {
 				dayArr.push( 'day-'+ parseInt(data.rows[i].time.substr(8)) )
 			}
 
-			if (dayArr.length) 
-				$('#calendar-days').addClass( dayArr.join(' ') );
+			eventClaendar.addClass( dayArr.join(' ') );
 				
 		}, 
 		err => {
@@ -134,7 +144,7 @@ function generateTodoType (key) {
 				
 				currentID = data[i].id;
 			}
-			ulInner += `<li ${_cur} data-id="${data[i].id}"><input value="${data[i].name}" readonly /></li>`
+			ulInner += `<li class="event-rows" ${_cur} data-id="${data[i].id}"><input value="${data[i].name}" readonly /></li>`
 		}
 
 		$('#todo-type-list').html( ulInner )
@@ -246,6 +256,7 @@ function todoListLiTem (data, checked, todoType, nowType) {
 	let	_id = data.id || 'new';
 	let todoTypeStr = '';
 	let writeTime = '';	// 创建日期
+	let startTime = data.startTime || 0;
 
 	nowType = nowType || {};
 
@@ -255,14 +266,55 @@ function todoListLiTem (data, checked, todoType, nowType) {
 		// 如果当前类型和查询的一样
 		if (nowType.id != data.parent) {
 			todoTypeStr = data.parent ? todoType[data.parent] : '';
-			writeTime = data.remindTime.substr(0, 10)
+			writeTime = data.startTime.substr(0, 10)
 		}
 
 	}
 
-	return  `<li data-id="${_id}" 
+	// 对开始时间处理
+	if ( startTime ) {
+		startTime = startTime.split(' ')[0].split('-');
+	}
+
+	// 获取帮助信息
+	let helpInfo = function() {
+		let result = '';
+
+		// 如果时间为空,那为我们不显示辅助信息
+		// if (writeTime) {
+			result = `<p class="title-help-info ${localStorage.EVENT_TYPE_ID <= 2?'':'hide'}">
+				<span class="et-thi-typeName">${todoTypeStr}</span>
+				`;
+		// }
+
+		if (localStorage.EVENT_TYPE_ID != 1)
+			result += `<span class="et-thi-writeTime">${writeTime}</span>`
+
+		return result + '</p>';
+	}
+
+	// 获取更多里面的列表信息
+	let getMoreTypeInfo = function() {
+		let result = '';
+
+		// 如果当前的列表和自己的分类是一样,那么就在当前列表
+		// 在当前列表不用显示自己有所属列表信息
+		if (nowType.id && nowType.id != data.parent) {
+			result = `<dl class="event-make-col">
+				<dt>列表:</dt>
+				<dd>
+					<span>${todoTypeStr || '无'}</span>
+				</dd>
+			</dl>`;
+		}
+
+		return result;
+	}
+
+	return  `<li class="event-rows"
+				 data-id="${_id}" 
 				 data-parent="${data.parent}" 
-				 data-time="${data.remindTime}"
+				 data-time="${data.startTime}"
 			>
 				<div class="header">
 					<label>
@@ -270,16 +322,38 @@ function todoListLiTem (data, checked, todoType, nowType) {
 					</label>
 					<div class="title-box">
 						<input class="title" value="${_title}" />
-						<p class="title-help-info">
-							<span class="et-thi-typeName">${todoTypeStr}</span>
-							<span class="et-thi-writeTime">${writeTime}</span>
-						</p>
+						${helpInfo()}
 					</div>
 					<span class="li-btns-box">
 						<button class="tbtn arrow-ico down-arrow"></button>
 					</span>
 				</div>
 				<ul class="inner">
+					${getMoreTypeInfo()}
+					<dl class="event-make-col">
+						<dt>开始:</dt>
+						<dd>
+							<ul class="date-select-ui">
+								<li class="year">${startTime[0]}</li>
+								<li class="month">${startTime[1]}</li>
+								<li class="day">${startTime[2]}</li>
+							</ul>
+
+							<button class="et-make-btn add-end-time">添加结束时间</button>
+						</dd>
+					</dl>
+					<!--
+					<dl class="event-make-col">
+						<dt>结束:</dt>
+						<dd>
+							<ul class="date-select-ui">
+								<li class="year">2017</li>
+								<li class="month">4</li>
+								<li class="day">28</li>
+							</ul>
+						</dd>
+					</dl>
+					-->
 					<dl>
 						<dt>备注:</dt>
 						<dd>
@@ -297,23 +371,18 @@ function todoListLiTem (data, checked, todoType, nowType) {
 */
 function saveMyToDoList (_this) {
 
-	let typeId = document.getElementById('todo-type-list').getElementsByClassName('current').item(0);
+	let typeId = localStorage.EVENT_TYPE_ID;
 	let _title = _this.find('.title');
 	let title  = _title.val();
 	let isDone = 0;
 	let remark = _this.find('.inner-box').val();
 	let parent = _this.data().parent || '',
 		id     = + new Date(),
-		calTime = calendarTitleTime(),
-		reTime  = '';
-
-	typeId = typeId ? typeId.dataset.id : 0;
+		reTime  = calendar.format('YYYY-MM-DD', `${localStorage.EVENT_CALENDAR_YEAR}-${localStorage.EVENT_CALENDAR_MONTH}-${localStorage.EVENT_CALENDAR_DAY}`);
 
 	if ( parseInt(parent) < 100) {
 		parent = '';
 	}
-
-	reTime = calendar.format('YYYY-MM-DD',`${calTime.year}-${calTime.month}-${calTime.day}`);
 
 	// 没有写标题的不算~
 	if (!title) {
@@ -333,8 +402,6 @@ function saveMyToDoList (_this) {
 		});
 
 		_this.data().id = id;
-		_this.data().time = reTime;
-		_this.data().parent = parent;
 
 		// 在有时间提醒时 处理日历上事件效果
 		if (reTime) {
@@ -351,7 +418,7 @@ function saveMyToDoList (_this) {
 
 	webSQLInsert(
 		'todoEvent', 
-		'id, title, complete, description, parent, remindTime', 
+		'id, title, complete, description, parent, startTime', 
 		[id, title, isDone, remark, parent, reTime],
 		done,
 		err => {
@@ -366,7 +433,7 @@ function saveMyToDoList (_this) {
 */
 function calendarTitleTime () {
 
-	let calendarDays = $('#calendar-days');
+	let calendarDays = $('#events-calendar-days');
 	let YYMM = calendarDays.data();
 	let year = YYMM.year;
 	let month= YYMM.month;
@@ -400,9 +467,16 @@ function calendarTitleTime () {
 
 /*
 	更新或添加日历索引
+	--------------------------------------------
 	@type    add | del
 	@time    日历事件时间  eg: 2017-04-01
 	@parent  类别
+
+	setCalendarDayEvent({
+		type: 'del', 
+		time: liData.time,
+		parent: liData.parent
+	})
 */
 function setCalendarDayEvent(obj) {
 
@@ -410,8 +484,13 @@ function setCalendarDayEvent(obj) {
 	let time = obj.time;
 	let parent = obj.parent;
 
+	if (isNaN(parent)) {
+		console.warning(`parent 不是数字,无法取得父级内容! -> setCalendarDayEvent`);
+		return;
+	}
+
 	let done = data => {
-		console.log(data)
+		// console.log(data)
 	};
 
 	let fail = err => {
@@ -422,7 +501,7 @@ function setCalendarDayEvent(obj) {
 	let addRemind = () => {
 
 		let setDayClass = 'day-'+parseInt(time.substr(8));
-		let calendarUl  = document.getElementById('calendar-days');
+		let calendarUl  = document.getElementById('events-calendar-days');
 		let currentType = document.getElementById('todo-type-list').querySelector('.current').dataset.id;
 
 		if (!calendarUl.matches('.'+setDayClass) && type === 'add' && currentType == parent) {
@@ -718,11 +797,13 @@ function moveToOtherType (liDataset, toSaveParent, toSaveName, callback) {
 			);
 		},
 		callback => {
-			setCalendarDayEvent({
-				type: 'del',
-				time: liDataset.time,
-				parent: parseInt(liDataset.parent)
-			})
+			if (liDataset.parentId) {
+				setCalendarDayEvent({
+					type: 'del',
+					time: liDataset.time,
+					parent: parseInt(liDataset.parent)
+				})
+			}
 			callback(null)
 		},
 		callback => {
@@ -743,10 +824,62 @@ function moveToOtherType (liDataset, toSaveParent, toSaveName, callback) {
 
 }
 
+/*
+	更新事件上的日期
+	------------------------------
+*/
+function updateEventData(parentId, eventId, key, oldTime, newTime, callback) {
 
+	async.parallel([
+		callback => {
+			// 更新时间
+			webSQLCommon(
+				`UPDATE todoEvent SET ${key} = ? WHERE id = ?`,
+				[newTime, eventId],
+				done => callback(null, done)
+			)
+		},
+		callback => {
+			// 删除之前日历索引
+			setCalendarDayEvent({
+				type: 'del', 
+				time: oldTime,
+				parent: parseInt(parentId)
+			});
+			callback(null)
 
+		},
+		callback => {
+			// 添加新的日期索引
+			setCalendarDayEvent({
+				type: 'add', 
+				time: newTime, 
+				parent: parseInt(parentId)
+			})
+			callback(null)
+		}
+	], (err, result) => {
+		if (err) return console.log(err);
 
+		if (callback) callback(result);
+	})
+}
 
+/*
+	更新事件选择的日期修改功能
+	------------------------------------------
+	@timeArr 时间数组,内容格式:[year, month, day] 
+	@ele 更新的 ul
+*/
+function updateEventSelectTime(ele, timeArr) {
+	ele.find('li', '.date-select-ui').each(function(i, n) {
+		let txt = this.innerText;
+
+		if (txt != timeArr[i]) {
+			this.innerText = timeArr[i]
+		}
+	})
+}
 
 
 
