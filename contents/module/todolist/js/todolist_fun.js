@@ -830,6 +830,8 @@ function moveToOtherType (liDataset, toSaveParent, toSaveName, callback) {
 */
 function updateEventData(parentId, eventId, key, oldTime, newTime, callback) {
 
+	eventId = parseInt(eventId);
+
 	async.parallel([
 		callback => {
 			// 更新时间
