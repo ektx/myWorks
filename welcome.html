@@ -3,11 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<title>Welcome!</title>
-	<link rel="stylesheet" href="contents/css/layout.css">
-	<link rel="stylesheet" href="contents/css/welcome.css">
+	<link rel="stylesheet" href="contents/bin/css/layout.css">
+	<link rel="stylesheet" href="contents/bin/css/welcome.css">
 </head>
 <body>
-    <button id="close-btn"></button>
+    <button id="window-close-btn" class="win-close-btn"></button>
 
 	<section class="welcome-box">
 		<header>星期三</header>
@@ -20,7 +20,15 @@
 		</footer>
 	</section>
 
-    <script type="text/javascript" src="contents/js/os.js"></script>
-    <script type="text/javascript" src="contents/js/wlecome.js"></script>
+	<script>
+	// 移交 node require ,兼容JQ
+	window.nodeRequire = require;
+	delete window.require;
+	delete window.exports;
+	delete window.module;	
+	</script>
+
+    <script type="text/javascript" src="contents/bin/js/os.js"></script>
+    <script type="text/javascript" src="contents/bin/js/wlecome.js"></script>
 </body>
 </html>
